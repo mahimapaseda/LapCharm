@@ -1,6 +1,6 @@
 {
   "name": "lapcharm",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Laptop Health Check Software",
   "main": "out/main/index.js",
   "author": "LapCharm Team",

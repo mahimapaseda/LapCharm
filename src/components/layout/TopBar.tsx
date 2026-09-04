@@ -1,5 +1,6 @@
-import { Minus, Square, X, Activity, Sun, Moon } from 'lucide-react'
+import { Minus, Square, X, Sun, Moon } from 'lucide-react'
 import type { Page } from '../../App'
+import logoUrl from '../../assets/logo.png'
 import './TopBar.css'
 
 const PAGE_TITLES: Record<Page, string> = {
@@ -27,9 +28,7 @@ export default function TopBar({ activePage, theme, toggleTheme }: Props) {
     <header className="topbar" data-drag-region>
       <div className="topbar-left">
         <div className="topbar-logo">
-          <div className="logo-mark">
-            <Activity size={15} strokeWidth={2.5} className="logo-icon" />
-          </div>
+          <img src={logoUrl} alt="LapCharm" className="logo-mark" width={28} height={28} draggable={false} />
           <span className="logo-text">LapCharm</span>
         </div>
         <div className="topbar-divider" />

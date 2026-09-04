@@ -35,15 +35,9 @@
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  background: var(--gradient-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #06120e;
-}
-
-.logo-icon {
-  color: inherit;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
 }
 
 .logo-text {

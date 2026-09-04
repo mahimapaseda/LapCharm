@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="docs/branding/logo.png" alt="LapCharm logo" width="96" />
+</p>
+
 # LapCharm
 
-[![Version](https://img.shields.io/badge/version-3.0.0-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.0.0)
+[![Version](https://img.shields.io/badge/version-3.0.1-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.0.1)
 [![Platform](https://img.shields.io/badge/platform-Windows%20x64-22d3a5)](https://github.com/mahimapaseda/LapCharm/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -38,8 +42,8 @@
 
 ## Install
 
-1. Open the [v3.0.0 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.0.0)
-2. Download **LapCharm Setup 3.0.0.exe**
+1. Open the [v3.0.1 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.0.1)
+2. Download **LapCharm Setup 3.0.1.exe**
 3. Run the NSIS installer (Windows x64)
 
 ## Development
