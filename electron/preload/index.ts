@@ -1,15 +1,20 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-// Expose a type-safe API to the renderer process
 contextBridge.exposeInMainWorld('lapcharm', {
-  // Window controls
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close')
   },
 
-  // System data
+  app: {
+    getVersion: () => ipcRenderer.invoke('app:getVersion')
+  },
+
+  shell: {
+    openExternal: (url: string) => ipcRenderer.invoke('shell:openExternal', url)
+  },
+
   battery: {
     get: () => ipcRenderer.invoke('battery:get')
   },

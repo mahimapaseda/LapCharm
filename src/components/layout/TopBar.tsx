@@ -12,7 +12,8 @@ const PAGE_TITLES: Record<Page, string> = {
   audio:     'Audio Health',
   network:   'Network',
   display:   'Display',
-  reports:   'Reports'
+  reports:   'Reports',
+  about:     'About'
 }
 
 interface Props {

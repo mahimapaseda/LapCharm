@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Battery, Thermometer, HardDrive,
-  Cpu, Volume2, Wifi, Monitor, FileText
+  Cpu, Volume2, Wifi, Monitor, FileText, Info
 } from 'lucide-react'
 import type { Page } from '../../App'
 import './Sidebar.css'
@@ -21,7 +21,8 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'audio',     label: 'Audio',         icon: Volume2,         group: 'Peripherals' },
   { id: 'network',   label: 'Network',       icon: Wifi,            group: 'Peripherals' },
   { id: 'display',   label: 'Display',       icon: Monitor,         group: 'Peripherals' },
-  { id: 'reports',   label: 'Reports',       icon: FileText,        group: 'Tools' }
+  { id: 'reports',   label: 'Reports',       icon: FileText,        group: 'Tools' },
+  { id: 'about',     label: 'About',         icon: Info,            group: 'Tools' }
 ]
 
 interface Props {
@@ -65,7 +66,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
       <div className="sidebar-footer">
         <div className="branding-text">Software by Mahima Paseda · Sri Lanka</div>
-        <div className="version-badge">v3.0.2</div>
+        <div className="version-badge">v3.1.0</div>
       </div>
     </aside>
   )

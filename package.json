@@ -1,11 +1,11 @@
 {
   "name": "lapcharm",
-  "version": "3.0.2",
-  "description": "Laptop Health Check Software",
+  "version": "3.1.0",
+  "description": "Laptop health monitor for Windows — battery, thermals, disk, CPU, RAM, and more.",
   "main": "out/main/index.js",
-  "author": "LapCharm Team",
+  "author": "Mahima Paseda",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

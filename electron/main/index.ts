@@ -6,6 +6,17 @@ import { initDatabase } from './database'
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
+let isQuitting = false
+
+function showMainWindow(): void {
+  if (!mainWindow) {
+    createWindow()
+    return
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -31,18 +42,24 @@ function createWindow(): void {
     mainWindow?.show()
   })
 
+  // Close → hide to tray (share-friendly monitoring app)
+  mainWindow.on('close', (event) => {
+    if (!isQuitting) {
+      event.preventDefault()
+      mainWindow?.hide()
+    }
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
 
-  // Load the app
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
 }
 
 function createTray(): void {
@@ -50,12 +67,16 @@ function createTray(): void {
   tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon)
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Open LapCharm', click: () => mainWindow?.show() },
+    { label: 'Open LapCharm', click: () => showMainWindow() },
+    {
+      label: 'Check for updates…',
+      click: () => shell.openExternal('https://github.com/mahimapaseda/LapCharm/releases')
+    },
     { type: 'separator' },
     {
       label: 'Quit',
       click: () => {
-        ;(app as any).isQuitting = true
+        isQuitting = true
         app.quit()
       }
     }
@@ -63,41 +84,52 @@ function createTray(): void {
 
   tray.setToolTip('LapCharm — Laptop Health Monitor')
   tray.setContextMenu(contextMenu)
-  tray.on('double-click', () => mainWindow?.show())
+  tray.on('double-click', () => showMainWindow())
+  tray.on('click', () => showMainWindow())
 }
-// Memory Optimization Flags (Low RAM Usage)
+
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=256')
 app.commandLine.appendSwitch('disable-site-isolation-trials')
 app.commandLine.appendSwitch('enable-low-end-device-mode')
 
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.lapcharm.app')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    showMainWindow()
   })
 
-  // Init database
-  initDatabase()
+  app.whenReady().then(() => {
+    electronApp.setAppUserModelId('com.lapcharm.app')
 
-  // Register all IPC handlers
-  registerIpcHandlers(ipcMain)
+    app.on('browser-window-created', (_, window) => {
+      optimizer.watchWindowShortcuts(window)
+    })
 
-  createWindow()
-  createTray()
+    initDatabase()
+    registerIpcHandlers(ipcMain)
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    createWindow()
+    createTray()
+
+    app.on('activate', () => {
+      showMainWindow()
+    })
   })
+}
+
+app.on('before-quit', () => {
+  isQuitting = true
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // Keep running in tray on Windows/Linux unless quitting
+  if (process.platform === 'darwin' && !isQuitting) return
+  if (!isQuitting) return
+  app.quit()
 })
 
-// Window controls IPC
 ipcMain.on('window:minimize', () => mainWindow?.minimize())
 ipcMain.on('window:maximize', () => {
   if (mainWindow?.isMaximized()) {
@@ -106,4 +138,15 @@ ipcMain.on('window:maximize', () => {
     mainWindow?.maximize()
   }
 })
-ipcMain.on('window:close', () => mainWindow?.close())
+ipcMain.on('window:close', () => {
+  // Hide to tray (same as window X)
+  mainWindow?.hide()
+})
+
+ipcMain.handle('app:getVersion', () => app.getVersion())
+ipcMain.handle('shell:openExternal', (_event, url: string) => {
+  if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
+    return shell.openExternal(url)
+  }
+  return Promise.reject(new Error('Invalid URL'))
+})

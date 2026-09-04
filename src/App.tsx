@@ -10,6 +10,7 @@ import Audio from './pages/Audio'
 import Network from './pages/Network'
 import Display from './pages/Display'
 import Reports from './pages/Reports'
+import About from './pages/About'
 import './App.css'
 
 export type Page =
@@ -22,6 +23,7 @@ export type Page =
   | 'network'
   | 'display'
   | 'reports'
+  | 'about'
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>('dashboard')
@@ -35,7 +37,7 @@ export default function App() {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }
 
   const renderPage = () => {
@@ -49,6 +51,7 @@ export default function App() {
       case 'network':   return <Network />
       case 'display':   return <Display />
       case 'reports':   return <Reports />
+      case 'about':     return <About />
       default:          return <Dashboard />
     }
   }
