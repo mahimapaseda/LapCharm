@@ -1,0 +1,52 @@
+.score-ring-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.score-ring-svg {
+  position: absolute;
+  top: 0; left: 0;
+}
+
+.score-ring-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.score-number {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color 0.5s ease;
+}
+
+.score-grade {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color 0.5s ease;
+}
+
+.score-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.score-sublabel {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  margin-top: 1px;
+}
