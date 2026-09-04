@@ -2,12 +2,12 @@ import si from 'systeminformation'
 
 export interface DiskDriveInfo {
   name: string
-  type: string // SSD / HDD / NVMe
+  type: string
   size: number
   temperature: number | null
   healthStatus: 'Good' | 'Caution' | 'Bad' | 'Unknown'
-  healthPercent: number
-  smartPassed: boolean
+  healthPercent: number | null
+  smartPassed: boolean | null
   reallocatedSectors: number
   pendingSectors: number
   uncorrectableErrors: number
@@ -32,38 +32,44 @@ export interface DiskInfo {
 }
 
 export async function getDiskInfo(): Promise<DiskInfo> {
-  const [siDisks, siLayout, siFsSize, siDiskIO] = await Promise.all([
+  const [siDisks, siFsSize, siFsStats] = await Promise.all([
     si.diskLayout(),
-    si.blockDevices(),
     si.fsSize(),
-    si.disksIO()
+    si.fsStats().catch(() => null)
   ])
 
   const drives: DiskDriveInfo[] = siDisks.map((disk) => {
-    // Estimate wear level from disk type
-    let wearLevel: number | null = null
-    let healthPercent = 95 // Default optimistic
+    let healthPercent: number | null = null
+    let smartPassed: boolean | null = null
 
     if (disk.smartStatus === 'Ok') {
       healthPercent = 95
+      smartPassed = true
     } else if (disk.smartStatus === 'Caution') {
       healthPercent = 60
+      smartPassed = false
     } else if (disk.smartStatus === 'Bad') {
       healthPercent = 20
+      smartPassed = false
+    } else {
+      healthPercent = null
+      smartPassed = null
     }
 
+    const scoreBase = healthPercent ?? 80
     const diskScore =
-      healthPercent >= 80
-        ? Math.round(75 + (healthPercent - 80) * 1.25)
-        : healthPercent >= 60
-        ? Math.round(50 + (healthPercent - 60))
-        : Math.round(healthPercent * 0.83)
+      scoreBase >= 80
+        ? Math.round(75 + (scoreBase - 80) * 1.25)
+        : scoreBase >= 60
+        ? Math.round(50 + (scoreBase - 60))
+        : Math.round(scoreBase * 0.83)
 
     return {
       name: disk.name || disk.device || 'Unknown',
       type: disk.type || 'Unknown',
       size: disk.size,
-      temperature: disk.temperature !== null && disk.temperature !== undefined ? disk.temperature : null,
+      temperature:
+        disk.temperature !== null && disk.temperature !== undefined ? disk.temperature : null,
       healthStatus:
         disk.smartStatus === 'Ok'
           ? 'Good'
@@ -73,12 +79,12 @@ export async function getDiskInfo(): Promise<DiskInfo> {
           ? 'Bad'
           : 'Unknown',
       healthPercent,
-      smartPassed: disk.smartStatus === 'Ok',
-      reallocatedSectors: 0, // Requires raw SMART — placeholder
+      smartPassed,
+      reallocatedSectors: 0,
       pendingSectors: 0,
       uncorrectableErrors: 0,
-      wearLevel,
-      readSpeed: 0, // Filled from disk IO below
+      wearLevel: null,
+      readSpeed: 0,
       writeSpeed: 0,
       diskScore
     }
@@ -92,8 +98,9 @@ export async function getDiskInfo(): Promise<DiskInfo> {
     usedPercent: Math.round(fs.use * 10) / 10
   }))
 
-  const totalReadSpeed = siDiskIO?.rIO_sec || 0
-  const totalWriteSpeed = siDiskIO?.wIO_sec || 0
+  // Prefer byte rates when available (Linux/macOS). On Windows these are often 0.
+  const totalReadSpeed = siFsStats?.rx_sec ?? 0
+  const totalWriteSpeed = siFsStats?.wx_sec ?? 0
 
   const overallDiskScore =
     drives.length === 0

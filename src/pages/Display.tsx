@@ -12,7 +12,7 @@ interface DisplayData {
     sizeInch: number | null
     resolutionX: number
     resolutionY: number
-    refreshRate: number
+    refreshRate: number | null
     brightness: number | null
     hdr: boolean
     connection: string
@@ -122,11 +122,11 @@ export default function Display() {
                   <td>{m.sizeInch ? `${m.sizeInch}"` : 'N/A'}</td>
                   <td>{m.resolutionX && m.resolutionY ? `${m.resolutionX}×${m.resolutionY}` : 'N/A'}</td>
                   <td style={{
-                    color: m.refreshRate >= 120
+                    color: (m.refreshRate ?? 0) >= 120
                       ? 'var(--color-accent-green)'
                       : 'var(--color-text-primary)'
                   }}>
-                    {m.refreshRate > 0 ? `${m.refreshRate} Hz` : 'N/A'}
+                    {m.refreshRate != null && m.refreshRate > 0 ? `${m.refreshRate} Hz` : 'N/A'}
                   </td>
                   <td>{m.connection}</td>
                   <td>{m.brightness != null ? `${m.brightness}%` : 'N/A'}</td>

@@ -53,11 +53,15 @@ export default function Disk() {
             </div>
             <div className="stat-item">
               <span className="stat-label">Read Speed</span>
-              <span className="stat-value text-blue">{d?.totalReadSpeed?.toFixed(0) ?? 'N/A'} IO/s</span>
+              <span className="stat-value text-blue">
+                {d?.totalReadSpeed ? `${formatBytes(d.totalReadSpeed)}/s` : 'N/A'}
+              </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Write Speed</span>
-              <span className="stat-value text-purple">{d?.totalWriteSpeed?.toFixed(0) ?? 'N/A'} IO/s</span>
+              <span className="stat-value text-purple">
+                {d?.totalWriteSpeed ? `${formatBytes(d.totalWriteSpeed)}/s` : 'N/A'}
+              </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Partitions</span>
@@ -96,9 +100,11 @@ export default function Disk() {
                     </span>
                   </td>
                   <td>
-                    {drive.smartPassed
+                    {drive.smartPassed === true
                       ? <span className="badge badge-green">PASSED</span>
-                      : <span className="badge badge-red">FAILED</span>
+                      : drive.smartPassed === false
+                      ? <span className="badge badge-red">FAILED</span>
+                      : <span className="badge badge-blue">UNKNOWN</span>
                     }
                   </td>
                   <td>{drive.temperature != null ? `${drive.temperature}°C` : 'N/A'}</td>

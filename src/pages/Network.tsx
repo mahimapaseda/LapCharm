@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
-import { Wifi, ArrowDown, ArrowUp } from 'lucide-react'
+import { Wifi, Cable, ArrowDown, ArrowUp } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
 import './ModulePage.css'
 
@@ -33,26 +33,33 @@ export default function Network() {
   const { network, setNetwork } = useHealthStore()
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const res = await lc?.network?.get()
       if (res?.success) setNetwork(res.data)
     }
-    fetch()
-    const id = setInterval(fetch, 15000)
+    fetchData()
+    const id = setInterval(fetchData, 15000)
     return () => clearInterval(id)
   }, [])
 
   const n = network
+  const conn = n?.connectionType ?? (n?.wifiConnected ? 'wifi' : 'offline')
+  const subtitle =
+    conn === 'wifi' && n?.wifiSsid ? `Connected to ${n.wifiSsid}` :
+    conn === 'ethernet' ? 'Ethernet connected' :
+    'No active connection'
 
   return (
     <div className="module-page">
       <div className="module-header">
         <div className="module-header-icon" style={{ background: 'rgba(34,211,238,0.1)' }}>
-          <Wifi size={24} color="var(--color-accent-cyan)" />
+          {conn === 'ethernet'
+            ? <Cable size={24} color="var(--color-accent-cyan)" />
+            : <Wifi size={24} color="var(--color-accent-cyan)" />}
         </div>
         <div>
           <h1 className="module-title">Network</h1>
-          <p className="module-subtitle">{n?.wifiSsid ? `Connected to ${n.wifiSsid}` : 'Wi-Fi Status'}</p>
+          <p className="module-subtitle">{subtitle}</p>
         </div>
       </div>
 
@@ -64,27 +71,31 @@ export default function Network() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">Signal</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <SignalBars percent={n?.wifiSignalPercent ?? 0} />
-                <span className="stat-value text-blue">{n?.wifiSignalPercent?.toFixed(0) ?? 'N/A'}%</span>
-              </div>
+              {conn === 'wifi' && n?.wifiSignalPercent != null ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <SignalBars percent={n.wifiSignalPercent} />
+                  <span className="stat-value text-blue">{n.wifiSignalPercent.toFixed(0)}%</span>
+                </div>
+              ) : (
+                <span className="stat-value text-muted">{conn === 'ethernet' ? 'Wired' : 'N/A'}</span>
+              )}
             </div>
             <div className="stat-item">
               <span className="stat-label">Band</span>
-              <span className="stat-value">{n?.wifiBand ?? 'N/A'}</span>
+              <span className="stat-value">{conn === 'wifi' ? (n?.wifiBand ?? 'N/A') : '—'}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Download</span>
               <span className="stat-value text-green">
                 <ArrowDown size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />
-                {n?.downloadSpeed != null ? formatBytes(n.downloadSpeed) + '/s' : 'N/A'}
+                {' '}{n?.downloadSpeed != null ? formatBytes(n.downloadSpeed) + '/s' : 'N/A'}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Upload</span>
               <span className="stat-value text-purple">
                 <ArrowUp size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />
-                {n?.uploadSpeed != null ? formatBytes(n.uploadSpeed) + '/s' : 'N/A'}
+                {' '}{n?.uploadSpeed != null ? formatBytes(n.uploadSpeed) + '/s' : 'N/A'}
               </span>
             </div>
             <div className="stat-item">
@@ -95,8 +106,8 @@ export default function Network() {
             </div>
             <div className="stat-item">
               <span className="stat-label">Status</span>
-              <span className={`stat-value ${n?.wifiConnected ? 'text-green' : 'text-red'}`}>
-                {n?.wifiConnected ? '✓ Connected' : '✗ Offline'}
+              <span className={`stat-value ${conn !== 'offline' ? 'text-green' : 'text-red'}`}>
+                {conn === 'wifi' ? 'Wi-Fi' : conn === 'ethernet' ? 'Ethernet' : 'Offline'}
               </span>
             </div>
           </div>

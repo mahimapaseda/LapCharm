@@ -1,32 +1,40 @@
 ﻿import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
-import { Thermometer, Wind, AlertTriangle } from 'lucide-react'
+import { Thermometer, Wind, AlertTriangle, Info } from 'lucide-react'
 import './ModulePage.css'
 
 const lc = (window as any).lapcharm
 
-function getTempColor(temp: number): string {
+function getTempColor(temp: number | null | undefined): string {
+  if (temp == null || temp <= 0) return 'var(--color-text-muted)'
   if (temp <= 60) return 'var(--color-accent-green)'
   if (temp <= 75) return 'var(--color-accent-blue)'
   if (temp <= 85) return 'var(--color-accent-amber)'
   return 'var(--color-accent-red)'
 }
 
+function formatTemp(temp: number | null | undefined): string {
+  if (temp == null || Number.isNaN(temp)) return 'N/A'
+  return `${temp.toFixed(1)}°C`
+}
+
 export default function Thermal() {
   const { thermal, setThermal } = useHealthStore()
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const res = await lc?.thermal?.get()
       if (res?.success) setThermal(res.data)
     }
-    fetch()
-    const id = setInterval(fetch, 15000)
+    fetchData()
+    const id = setInterval(fetchData, 15000)
     return () => clearInterval(id)
   }, [])
 
   const t = thermal
+  const hasCores = (t?.cpuTempPerCore?.length ?? 0) > 0
+  const hasZones = (t?.zones?.length ?? 0) > 0
 
   return (
     <div className="module-page">
@@ -48,45 +56,56 @@ export default function Thermal() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">CPU Temp</span>
-              <span className="stat-value" style={{ color: getTempColor(t?.cpuTemp ?? 0) }}>
-                {t?.cpuTemp?.toFixed(1) ?? 'N/A'}°C
+              <span className="stat-value" style={{ color: getTempColor(t?.cpuTemp) }}>
+                {formatTemp(t?.cpuTemp)}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">GPU Temp</span>
-              <span className="stat-value" style={{ color: getTempColor(t?.gpuTemp ?? 0) }}>
-                {t?.gpuTemp != null ? `${t.gpuTemp.toFixed(1)}°C` : 'N/A'}
+              <span className="stat-value" style={{ color: getTempColor(t?.gpuTemp) }}>
+                {formatTemp(t?.gpuTemp)}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Max Temp</span>
-              <span className="stat-value" style={{ color: getTempColor(t?.maxTemp ?? 0) }}>
-                {t?.maxTemp?.toFixed(1) ?? 'N/A'}°C
+              <span className="stat-value" style={{ color: getTempColor(t?.maxTemp) }}>
+                {formatTemp(t?.maxTemp)}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Throttling</span>
               <span className={`stat-value ${t?.isThrottling ? 'text-red' : 'text-green'}`}>
-                {t?.isThrottling ? '⚠ Yes' : '✓ No'}
+                {t?.isThrottling ? 'Yes' : 'No'}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Per-core temperatures */}
-      {t && t.cpuTempPerCore.length > 0 && (
+      {t && t.sensorAvailable === false && (
+        <div className="card warning-card">
+          <Info size={18} color="var(--color-accent-amber)" />
+          <div>
+            <p className="warning-title">Limited thermal sensors</p>
+            <p className="warning-desc">
+              Direct CPU sensors are unavailable without admin access. Showing thermal-zone and GPU readings when present.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {hasCores && (
         <div className="card">
           <h2 className="card-section-title">Per-Core Temperatures</h2>
           <div className="core-grid">
-            {t.cpuTempPerCore.map((temp, i) => (
+            {t!.cpuTempPerCore.map((temp, i) => (
               <div key={i} className="core-item">
                 <span className="core-label">Core {i}</span>
                 <div className="core-bar-track">
                   <div
                     className="core-bar-fill"
                     style={{
-                      width: `${Math.min(100, (temp / 100) * 100)}%`,
+                      width: `${Math.min(100, Math.max(0, temp))}%`,
                       background: getTempColor(temp)
                     }}
                   />
@@ -100,7 +119,31 @@ export default function Thermal() {
         </div>
       )}
 
-      {/* Fan speeds */}
+      {hasZones && (
+        <div className="card">
+          <h2 className="card-section-title">Thermal Zones</h2>
+          <div className="core-grid">
+            {t!.zones!.map((z, i) => (
+              <div key={i} className="core-item">
+                <span className="core-label">{z.name.replace(/^\\+/, '') || `Zone ${i}`}</span>
+                <div className="core-bar-track">
+                  <div
+                    className="core-bar-fill"
+                    style={{
+                      width: `${Math.min(100, Math.max(0, z.temp))}%`,
+                      background: getTempColor(z.temp)
+                    }}
+                  />
+                </div>
+                <span className="core-temp" style={{ color: getTempColor(z.temp) }}>
+                  {z.temp.toFixed(0)}°C
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {t && t.fanSpeeds.length > 0 && (
         <div className="card">
           <h2 className="card-section-title">Fan Speeds</h2>
@@ -116,14 +159,13 @@ export default function Thermal() {
         </div>
       )}
 
-      {/* Throttle warning */}
       {t?.isThrottling && (
         <div className="card warning-card" style={{ borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
           <AlertTriangle size={18} color="var(--color-accent-red)" />
           <div>
             <p className="warning-title" style={{ color: 'var(--color-accent-red)' }}>Thermal Throttling Detected</p>
             <p className="warning-desc">
-              CPU performance is being limited to prevent overheating. Clean the cooling vents and check thermal paste. Consider a cooling pad.
+              Performance may be limited to prevent overheating. Clean vents and check cooling.
             </p>
           </div>
         </div>

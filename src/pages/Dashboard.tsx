@@ -162,16 +162,16 @@ export default function Dashboard() {
 
       {/* Module Cards Grid */}
       <section className="module-grid">
-        <ModuleCard icon={Battery}     label="Battery Health" score={battery?.healthScore ?? 0}   value={battery?.healthPercent?.toFixed(1) ?? ''}     unit="%"       color="var(--color-accent-green)"  />
-        <ModuleCard icon={Thermometer} label="CPU Temp"       score={thermal?.thermalScore ?? 0}   value={thermal?.cpuTemp?.toFixed(1) ?? ''}           unit="°C"      color="var(--color-accent-amber)"  />
+        <ModuleCard icon={Battery}     label="Battery Health" score={battery?.healthScore ?? 0}   value={battery?.healthPercent != null ? battery.healthPercent.toFixed(1) : 'N/A'} unit={battery?.healthPercent != null ? '%' : ''} color="var(--color-accent-green)"  />
+        <ModuleCard icon={Thermometer} label="CPU Temp"       score={thermal?.thermalScore ?? 0}   value={thermal?.cpuTemp != null ? thermal.cpuTemp.toFixed(1) : (thermal?.maxTemp != null ? thermal.maxTemp.toFixed(1) : 'N/A')} unit={thermal?.cpuTemp != null || thermal?.maxTemp != null ? '°C' : ''} color="var(--color-accent-amber)"  />
         <ModuleCard icon={HardDrive}   label="Storage"        score={disk?.overallDiskScore ?? 0}  value={disk?.drives?.[0]?.healthStatus ?? ''}        color="var(--color-accent-blue)"   />
         <ModuleCard icon={Cpu}         label="CPU & RAM"      score={cpuram?.overallScore ?? 0}    value={cpuram?.usedPercent?.toFixed(0) ?? ''}        unit="% RAM"   color="var(--color-accent-purple)" />
-        <ModuleCard icon={Wifi}        label="Network"        score={network?.networkScore ?? 0}   value={network?.wifiSignalPercent?.toFixed(0) ?? ''} unit="% signal" color="var(--color-accent-cyan)"   />
+        <ModuleCard icon={Wifi}        label="Network"        score={network?.networkScore ?? 0}   value={network?.connectionType === 'ethernet' ? 'LAN' : (network?.wifiSignalPercent != null ? network.wifiSignalPercent.toFixed(0) : 'N/A')} unit={network?.connectionType === 'wifi' && network?.wifiSignalPercent != null ? '% signal' : ''} color="var(--color-accent-cyan)"   />
         <ModuleCard icon={Volume2}     label="Audio"          score={audio?.audioScore ?? 0}       value={audio?.devices?.length ?? 0}                  unit="devices" color="var(--color-accent-purple)" />
       </section>
 
       {/* Recommendations */}
-      {healthScore?.recommendations?.length > 0 && (
+      {healthScore?.recommendations && healthScore.recommendations.length > 0 && (
         <section className="recommendations card">
           <h2 className="section-title">Recommendations</h2>
           <div className="rec-list">
@@ -183,15 +183,15 @@ export default function Dashboard() {
       )}
 
       {/* Live Charging Status */}
-      {battery && (
+      {battery && battery.hasBattery && (
         <section className="charging-section card">
           <h2 className="section-title">Charging Status</h2>
           <div className="charging-row">
             {[
               { label: 'Level',       value: `${battery.percent}%`,                  cls: 'text-green' },
-              { label: 'Status',      value: battery.isCharging ? '⚡ Charging' : (battery.acConnected ? '🔌 Plugged In (Full)' : '🔋 Discharging'), cls: battery.isCharging || battery.acConnected ? 'text-green' : 'text-amber' },
-              { label: 'Power',       value: battery.chargingWatts > 0 ? `${battery.chargingWatts}W` : 'N/A', cls: 'text-blue' },
-              { label: 'Health',      value: `${battery.healthPercent.toFixed(1)}%`,  cls: battery.healthPercent >= 80 ? 'text-green' : battery.healthPercent >= 50 ? 'text-amber' : 'text-red' },
+              { label: 'Status',      value: battery.isCharging ? 'Charging' : (battery.acConnected ? 'Plugged In' : 'Discharging'), cls: battery.isCharging || battery.acConnected ? 'text-green' : 'text-amber' },
+              { label: 'Power',       value: battery.chargingWatts != null && battery.chargingWatts > 0 ? `${battery.chargingWatts}W` : 'N/A', cls: 'text-blue' },
+              { label: 'Health',      value: battery.healthPercent != null ? `${battery.healthPercent.toFixed(1)}%` : 'N/A',  cls: battery.healthPercent != null && battery.healthPercent >= 80 ? 'text-green' : battery.healthPercent != null && battery.healthPercent >= 50 ? 'text-amber' : 'text-red' },
               { label: 'Cycles',      value: battery.cycleCount > 0 ? String(battery.cycleCount) : 'N/A', cls: '' },
               { label: 'Voltage',     value: battery.voltage > 0 ? `${battery.voltage}V` : 'N/A', cls: '' }
             ].map(({ label, value, cls }) => (

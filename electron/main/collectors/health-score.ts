@@ -3,6 +3,7 @@ import type { ThermalInfo } from './thermal'
 import type { DiskInfo } from './disk'
 import type { CpuRamInfo } from './cpu-ram'
 import type { NetworkInfo } from './network'
+import type { AudioInfo } from './audio'
 
 interface AllModuleData {
   battery: BatteryInfo
@@ -10,6 +11,7 @@ interface AllModuleData {
   disk: DiskInfo
   cpuram: CpuRamInfo
   network: NetworkInfo
+  audio: AudioInfo
 }
 
 export interface OverallHealthScore {
@@ -22,7 +24,6 @@ export interface OverallHealthScore {
   network: number
   audio: number
   recommendations: string[]
-  // Snapshot extras
   batteryHealthPercent: number
   batteryLevel: number
   cpuTemp: number
@@ -31,11 +32,10 @@ export interface OverallHealthScore {
 }
 
 export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
-  const { battery, thermal, disk, cpuram, network } = data
+  const { battery, thermal, disk, cpuram, network, audio } = data
 
-  // Weighted scores
   const weights = {
-    battery: 0.25,
+    battery: battery.hasBattery ? 0.25 : 0,
     thermal: 0.20,
     disk: 0.25,
     cpuram: 0.15,
@@ -43,15 +43,18 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     audio: 0.05
   }
 
-  const audioScore = 90 // Default, updated when audio module runs
+  // Redistribute battery weight when no battery (desktop)
+  const weightSum = Object.values(weights).reduce((a, b) => a + b, 0) || 1
+  const norm = (w: number) => w / weightSum
 
+  const audioScore = audio.audioScore
   const overall = Math.round(
-    battery.healthScore * weights.battery +
-    thermal.thermalScore * weights.thermal +
-    disk.overallDiskScore * weights.disk +
-    cpuram.overallScore * weights.cpuram +
-    network.networkScore * weights.network +
-    audioScore * weights.audio
+    battery.healthScore * norm(weights.battery) +
+    thermal.thermalScore * norm(weights.thermal) +
+    disk.overallDiskScore * norm(weights.disk) +
+    cpuram.overallScore * norm(weights.cpuram) +
+    network.networkScore * norm(weights.network) +
+    audioScore * norm(weights.audio)
   )
 
   const grade: OverallHealthScore['grade'] =
@@ -60,49 +63,54 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     overall >= 55 ? 'C' :
     overall >= 40 ? 'D' : 'F'
 
-  // Generate recommendations
   const recommendations: string[] = []
 
-  if (battery.healthPercent < 40) {
-    recommendations.push('🔋 Battery health is critically low. Consider replacing the battery soon.')
-  } else if (battery.healthPercent < 60) {
-    recommendations.push('🔋 Battery health is declining. Monitor closely and plan for replacement.')
+  if (battery.hasBattery && battery.healthPercent != null) {
+    if (battery.healthPercent < 40) {
+      recommendations.push('Battery health is critically low. Consider replacing the battery soon.')
+    } else if (battery.healthPercent < 60) {
+      recommendations.push('Battery health is declining. Monitor closely and plan for replacement.')
+    }
   }
 
-  if (thermal.maxTemp > 90) {
-    recommendations.push('🌡️ CPU temperature is dangerously high. Clean the cooling vents and check thermal paste.')
-  } else if (thermal.maxTemp > 80) {
-    recommendations.push('🌡️ CPU is running hot. Ensure good airflow and consider a cooling pad.')
+  if (!thermal.sensorAvailable) {
+    recommendations.push('Thermal sensors are limited on this system. GPU/zone readings are used when available.')
+  } else if (thermal.maxTemp != null && thermal.maxTemp > 90) {
+    recommendations.push('CPU temperature is dangerously high. Clean cooling vents and check thermal paste.')
+  } else if (thermal.maxTemp != null && thermal.maxTemp > 80) {
+    recommendations.push('System is running hot. Ensure good airflow and consider a cooling pad.')
   }
 
   if (thermal.isThrottling) {
-    recommendations.push('⚡ CPU thermal throttling detected. Performance is being limited to prevent overheating.')
+    recommendations.push('Thermal throttling detected. Performance may be limited to prevent overheating.')
   }
 
   disk.drives.forEach((d) => {
     if (d.healthStatus === 'Bad') {
-      recommendations.push(`💾 Disk "${d.name}" is failing. Back up your data immediately!`)
+      recommendations.push(`Disk "${d.name}" is failing. Back up your data immediately.`)
     } else if (d.healthStatus === 'Caution') {
-      recommendations.push(`💾 Disk "${d.name}" shows caution indicators. Run a full backup.`)
+      recommendations.push(`Disk "${d.name}" shows caution indicators. Run a full backup.`)
     }
   })
 
   disk.partitions.forEach((p) => {
     if (p.usedPercent > 90) {
-      recommendations.push(`💾 Partition "${p.mount}" is ${p.usedPercent}% full. Free up space to maintain performance.`)
+      recommendations.push(`Partition "${p.mount}" is ${p.usedPercent}% full. Free up space.`)
     }
   })
 
   if (cpuram.usedPercent > 85) {
-    recommendations.push('🧠 RAM usage is very high. Close unused applications or consider upgrading RAM.')
+    recommendations.push('RAM usage is very high. Close unused applications or consider upgrading RAM.')
   }
 
-  if (network.wifiSignalPercent < 40) {
-    recommendations.push('📶 Wi-Fi signal is weak. Move closer to the router or use a 5GHz band.')
+  if (network.connectionType === 'wifi' && network.wifiSignalPercent != null && network.wifiSignalPercent < 40) {
+    recommendations.push('Wi-Fi signal is weak. Move closer to the router or use a 5GHz band.')
+  } else if (network.connectionType === 'offline') {
+    recommendations.push('No active network connection detected.')
   }
 
   if (recommendations.length === 0) {
-    recommendations.push('✅ Your laptop is in excellent health. Keep it up!')
+    recommendations.push('Your laptop is in excellent health. Keep it up!')
   }
 
   return {
@@ -115,9 +123,9 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     network: network.networkScore,
     audio: audioScore,
     recommendations,
-    batteryHealthPercent: battery.healthPercent,
+    batteryHealthPercent: battery.healthPercent ?? 0,
     batteryLevel: battery.percent,
-    cpuTemp: thermal.cpuTemp,
+    cpuTemp: thermal.cpuTemp ?? thermal.maxTemp ?? 0,
     diskHealth: disk.drives[0]?.healthStatus || 'Unknown',
     ramUsedPercent: cpuram.usedPercent
   }

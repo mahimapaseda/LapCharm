@@ -42,7 +42,7 @@ export default function Battery() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">Health</span>
-              <span className="stat-value text-green">{b?.healthPercent?.toFixed(1) ?? 'N/A'}%</span>
+              <span className="stat-value text-green">{b?.healthPercent != null ? `${b.healthPercent.toFixed(1)}%` : 'N/A'}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Charge Level</span>
@@ -51,12 +51,12 @@ export default function Battery() {
             <div className="stat-item">
               <span className="stat-label">Status</span>
               <span className={`stat-value ${b?.isCharging || b?.acConnected ? 'text-green' : 'text-amber'}`}>
-                {b?.isCharging ? '⚡ Charging' : (b?.acConnected ? '🔌 Plugged In (Full)' : '🔋 Discharging')}
+                {b?.isCharging ? 'Charging' : (b?.acConnected ? 'Plugged In' : 'Discharging')}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Power</span>
-              <span className="stat-value text-blue">{b?.chargingWatts ?? 'N/A'}W</span>
+              <span className="stat-value text-blue">{b?.chargingWatts != null ? `${b.chargingWatts}W` : 'N/A'}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Voltage</span>
@@ -98,7 +98,7 @@ export default function Battery() {
       </div>
 
       {/* Capacity visualization */}
-      {b && (
+      {b && b.designCapacity > 0 && b.fullChargeCapacity > 0 && (
         <div className="card">
           <h2 className="card-section-title">Capacity Analysis</h2>
           <div className="capacity-bars">
@@ -113,18 +113,21 @@ export default function Battery() {
               <span className="stat-label">Full Charge Capacity</span>
               <div className="bar-track">
                 <div className="bar-fill" style={{
-                  width: `${(b.fullChargeCapacity / (b.designCapacity || 1)) * 100}%`,
-                  background: b.healthPercent >= 80 ? 'var(--color-accent-green)' : b.healthPercent >= 60 ? 'var(--color-accent-amber)' : 'var(--color-accent-red)'
+                  width: `${(b.fullChargeCapacity / b.designCapacity) * 100}%`,
+                  background: (b.healthPercent ?? 0) >= 80 ? 'var(--color-accent-green)' : (b.healthPercent ?? 0) >= 60 ? 'var(--color-accent-amber)' : 'var(--color-accent-red)'
                 }} />
               </div>
-              <span className="bar-value">{b.fullChargeCapacity} mWh ({b.healthPercent.toFixed(1)}%)</span>
+              <span className="bar-value">
+                {b.fullChargeCapacity} mWh
+                {b.healthPercent != null ? ` (${b.healthPercent.toFixed(1)}%)` : ''}
+              </span>
             </div>
           </div>
         </div>
       )}
 
       {/* Warning */}
-      {b && b.healthPercent < 60 && (
+      {b && b.healthPercent != null && b.healthPercent < 60 && (
         <div className="card warning-card">
           <AlertTriangle size={18} color="var(--color-accent-amber)" />
           <div>

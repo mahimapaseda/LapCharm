@@ -7,7 +7,7 @@ export interface DisplayInfo {
     sizeInch: number | null
     resolutionX: number
     resolutionY: number
-    refreshRate: number
+    refreshRate: number | null
     brightness: number | null
     hdr: boolean
     connection: string
@@ -21,10 +21,7 @@ export interface DisplayInfo {
 }
 
 export async function getDisplayInfo(): Promise<DisplayInfo> {
-  const [siGraphics, siOs] = await Promise.all([
-    si.graphics(),
-    si.osInfo()
-  ])
+  const siGraphics = await si.graphics()
 
   const monitors = siGraphics.displays.map((d) => ({
     model: d.model || 'Unknown Monitor',
@@ -34,9 +31,9 @@ export async function getDisplayInfo(): Promise<DisplayInfo> {
       : null,
     resolutionX: d.currentResX || d.resolutionx || 0,
     resolutionY: d.currentResY || d.resolutiony || 0,
-    refreshRate: d.currentRefreshRate || d.pixelDepth || 60,
+    refreshRate: d.currentRefreshRate && d.currentRefreshRate > 0 ? d.currentRefreshRate : null,
     brightness: d.currentBrightness || null,
-    hdr: false, // WMI-based HDR detection not in si
+    hdr: false,
     connection: d.connection || 'Unknown'
   }))
 

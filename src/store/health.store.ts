@@ -4,9 +4,10 @@ import { create } from 'zustand'
 export interface BatteryState {
   hasBattery: boolean
   isCharging: boolean
+  acConnected: boolean
   percent: number
-  healthPercent: number
-  chargingWatts: number
+  healthPercent: number | null
+  chargingWatts: number | null
   cycleCount: number
   voltage: number
   manufacturer: string
@@ -18,13 +19,15 @@ export interface BatteryState {
 }
 
 export interface ThermalState {
-  cpuTemp: number
+  cpuTemp: number | null
   cpuTempPerCore: number[]
   gpuTemp: number | null
-  maxTemp: number
+  maxTemp: number | null
   fanSpeeds: number[]
   isThrottling: boolean
   thermalScore: number
+  sensorAvailable?: boolean
+  zones?: { name: string; temp: number }[]
 }
 
 export interface DiskState {
@@ -33,8 +36,8 @@ export interface DiskState {
     type: string
     size: number
     healthStatus: string
-    healthPercent: number
-    smartPassed: boolean
+    healthPercent: number | null
+    smartPassed: boolean | null
     temperature: number | null
     diskScore: number
   }[]
@@ -80,8 +83,9 @@ export interface AudioState {
 export interface NetworkState {
   wifiConnected: boolean
   wifiSsid: string
-  wifiSignalPercent: number
+  wifiSignalPercent: number | null
   wifiBand: string
+  connectionType?: 'wifi' | 'ethernet' | 'offline'
   downloadSpeed: number
   uploadSpeed: number
   pingMs: number | null

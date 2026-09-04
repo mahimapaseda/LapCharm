@@ -28,7 +28,7 @@ export async function execPowerShell(script: string, ttlMs = 15000): Promise<str
     const encoded = Buffer.from(script, 'utf16le').toString('base64')
     const { stdout } = await execAsync(
       `powershell.exe -NonInteractive -NoProfile -EncodedCommand ${encoded}`,
-      { timeout: 8000 }
+      { timeout: 15000 }
     )
     const result = stdout.trim()
     psCache.set(script, { value: result, expiresAt: now + ttlMs })

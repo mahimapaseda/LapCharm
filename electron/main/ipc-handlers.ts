@@ -101,14 +101,15 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
   ipcMain.handle('health:score', async () => {
     try {
       const data = await cached('score', TTL.score, async () => {
-        const [battery, thermal, disk, cpuram, network] = await Promise.all([
+        const [battery, thermal, disk, cpuram, network, audio] = await Promise.all([
           cached('battery', TTL.battery, getBatteryInfo),
           cached('thermal', TTL.thermal, getThermalInfo),
           cached('disk',    TTL.disk,    getDiskInfo),
           cached('cpuram',  TTL.cpuram,  getCpuRamInfo),
-          cached('network', TTL.network, getNetworkInfo)
+          cached('network', TTL.network, getNetworkInfo),
+          cached('audio',   TTL.audio,   getAudioInfo)
         ])
-        return getOverallHealthScore({ battery, thermal, disk, cpuram, network })
+        return getOverallHealthScore({ battery, thermal, disk, cpuram, network, audio })
       })
       saveSnapshot(data)
       return { success: true, data }
