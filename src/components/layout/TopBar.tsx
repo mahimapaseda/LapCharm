@@ -1,4 +1,4 @@
-import { Minus, Square, X, Cpu, Sun, Moon } from 'lucide-react'
+import { Minus, Square, X, Activity, Sun, Moon } from 'lucide-react'
 import type { Page } from '../../App'
 import './TopBar.css'
 
@@ -27,7 +27,9 @@ export default function TopBar({ activePage, theme, toggleTheme }: Props) {
     <header className="topbar" data-drag-region>
       <div className="topbar-left">
         <div className="topbar-logo">
-          <Cpu size={16} className="logo-icon" />
+          <div className="logo-mark">
+            <Activity size={15} strokeWidth={2.5} className="logo-icon" />
+          </div>
           <span className="logo-text">LapCharm</span>
         </div>
         <div className="topbar-divider" />
@@ -40,9 +42,9 @@ export default function TopBar({ activePage, theme, toggleTheme }: Props) {
           <span className="live-label">Live</span>
         </div>
 
-        <button 
-          className="theme-toggle-btn" 
-          onClick={toggleTheme} 
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
         >
           {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}

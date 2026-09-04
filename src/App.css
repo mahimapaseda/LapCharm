@@ -4,13 +4,15 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg-primary);
+  background: var(--gradient-shell);
+  animation: shellIn 0.5s ease forwards;
 }
 
 .app-body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-height: 0;
 }
 
 .app-content {
@@ -18,11 +20,14 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(45, 212, 168, 0.03) 50%, transparent 100%);
 }
 
 .page-wrapper {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--spacing-6);
+  padding: var(--spacing-6) var(--spacing-8);
 }

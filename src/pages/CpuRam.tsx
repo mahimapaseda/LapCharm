@@ -98,7 +98,7 @@ export default function CpuRam() {
                 itemStyle={{ color: 'var(--color-text-primary)' }}
                 formatter={(v: number) => [`${v}%`, 'Usage']}
               />
-              <Bar dataKey="usage" fill="var(--color-accent-purple)" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="usage" fill="var(--color-accent-green)" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

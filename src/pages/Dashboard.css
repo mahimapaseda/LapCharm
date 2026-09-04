@@ -9,7 +9,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--spacing-6) var(--spacing-8);
+  padding: var(--spacing-7, 28px) var(--spacing-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+  backdrop-filter: var(--card-backdrop);
 }
 
 .hero-score-area {
@@ -22,9 +26,11 @@
 .hero-details { flex: 1; }
 
 .hero-title {
-  font-size: var(--font-size-xl);
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.03em;
   margin-bottom: var(--spacing-1);
 }
 
@@ -76,7 +82,10 @@
 }
 
 .module-card.clickable { cursor: pointer; }
-.module-card:hover { transform: translateY(-2px); box-shadow: none; }
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-border-bright);
+}
 
 .module-card-header {
   display: flex;
@@ -116,9 +125,11 @@
 
 .module-value {
   display: block;
+  font-family: var(--font-display);
   font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.02em;
 }
 
 .module-unit {
@@ -130,9 +141,11 @@
 /* Recommendations */
 .recommendations { }
 .section-title {
+  font-family: var(--font-display);
   font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--color-text-primary);
+  letter-spacing: -0.02em;
   margin-bottom: var(--spacing-4);
 }
 

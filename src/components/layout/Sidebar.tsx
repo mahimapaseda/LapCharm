@@ -34,6 +34,11 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
   return (
     <aside className="sidebar">
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-name">LapCharm</div>
+        <div className="sidebar-brand-tag">Laptop health monitor</div>
+      </div>
+
       <nav className="sidebar-nav">
         {groups.map((group) => (
           <div className="nav-group" key={group}>
@@ -48,9 +53,9 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
                   className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
                   onClick={() => onNavigate(item.id)}
                 >
+                  {isActive && <div className="nav-active-bar" />}
                   <Icon size={16} className="nav-icon" />
                   <span className="nav-label">{item.label}</span>
-                  {isActive && <div className="nav-active-bar" />}
                 </button>
               )
             })}
@@ -59,8 +64,8 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="branding-text">Software by Mahima Paseda from Sri Lanka</div>
-        <div className="version-badge">v2.2.9</div>
+        <div className="branding-text">Software by Mahima Paseda · Sri Lanka</div>
+        <div className="version-badge">v3.0.0</div>
       </div>
     </aside>
   )
