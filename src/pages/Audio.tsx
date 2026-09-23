@@ -1,22 +1,29 @@
-﻿import { useEffect } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
-import { Volume2, Mic, Speaker, Bluetooth } from 'lucide-react'
+import { Volume2, Mic, Bluetooth, Loader2, Play } from 'lucide-react'
+import { playSpeakerTest, runMicrophoneTest, type MicTestResult } from '../utils/audio-test'
 import './ModulePage.css'
+import './Reports.css'
 
 const lc = window.lapcharm
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
-  Speaker:    Volume2,
+  Speaker: Volume2,
   Microphone: Mic,
-  Headphone:  Volume2,
-  Bluetooth:  Bluetooth,
+  Headphone: Volume2,
+  Bluetooth: Bluetooth,
   'USB Audio': Volume2,
-  Other:      Volume2
+  Other: Volume2
 }
 
 export default function Audio() {
   const { audio, setAudio } = useHealthStore()
+  const [speakerBusy, setSpeakerBusy] = useState(false)
+  const [micBusy, setMicBusy] = useState(false)
+  const [speakerMsg, setSpeakerMsg] = useState<string | null>(null)
+  const [micResult, setMicResult] = useState<MicTestResult | null>(null)
+  const [micError, setMicError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetch = async () => {
@@ -28,6 +35,38 @@ export default function Audio() {
     return () => clearInterval(id)
   }, [])
 
+  const onSpeakerTest = async () => {
+    setSpeakerBusy(true)
+    setSpeakerMsg(null)
+    try {
+      await playSpeakerTest()
+      setSpeakerMsg('Tone played on the default output device. If you heard a beep, speakers are working.')
+    } catch (err) {
+      setSpeakerMsg(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSpeakerBusy(false)
+    }
+  }
+
+  const onMicTest = async () => {
+    setMicBusy(true)
+    setMicError(null)
+    setMicResult(null)
+    try {
+      const result = await runMicrophoneTest()
+      setMicResult(result)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      setMicError(
+        /Permission|NotAllowed|denied/i.test(msg)
+          ? 'Microphone permission denied. Allow mic access for LapCharm in Windows settings.'
+          : msg
+      )
+    } finally {
+      setMicBusy(false)
+    }
+  }
+
   const a = audio
 
   return (
@@ -38,7 +77,7 @@ export default function Audio() {
         </div>
         <div>
           <h1 className="module-title">Audio Health</h1>
-          <p className="module-subtitle">Sound devices & driver status</p>
+          <p className="module-subtitle">Sound devices, drivers, and quick tests</p>
         </div>
       </div>
 
@@ -55,9 +94,52 @@ export default function Audio() {
             <div className="stat-item">
               <span className="stat-label">Active</span>
               <span className="stat-value text-green">
-                {a?.devices?.filter(d => d.status === 'active').length ?? 'N/A'}
+                {a?.devices?.filter((d) => d.status === 'active').length ?? 'N/A'}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2 className="card-section-title">Audio tests</h2>
+        <div className="stat-grid" style={{ marginTop: 12 }}>
+          <div className="stat-item" style={{ gap: 10 }}>
+            <span className="stat-label">Speaker test</span>
+            <button
+              className="export-btn export-btn-primary"
+              onClick={onSpeakerTest}
+              disabled={speakerBusy}
+              style={{ width: 'fit-content' }}
+            >
+              {speakerBusy ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
+              {speakerBusy ? 'Playing…' : 'Play test tone'}
+            </button>
+            {speakerMsg && (
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{speakerMsg}</span>
+            )}
+          </div>
+          <div className="stat-item" style={{ gap: 10 }}>
+            <span className="stat-label">Microphone test</span>
+            <button
+              className="export-btn export-btn-primary"
+              onClick={onMicTest}
+              disabled={micBusy}
+              style={{ width: 'fit-content' }}
+            >
+              {micBusy ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />}
+              {micBusy ? 'Listening…' : 'Test microphone'}
+            </button>
+            {micError && (
+              <span style={{ fontSize: 12, color: 'var(--color-accent-red)' }}>{micError}</span>
+            )}
+            {micResult && (
+              <span style={{ fontSize: 12, color: micResult.passed ? 'var(--color-accent-green)' : 'var(--color-accent-amber)' }}>
+                {micResult.passed
+                  ? `Mic OK — peak ${micResult.peakLevel}%, avg ${micResult.avgLevel}%`
+                  : `Low input — peak ${micResult.peakLevel}%. Speak louder or check the mic.`}
+              </span>
+            )}
           </div>
         </div>
       </div>

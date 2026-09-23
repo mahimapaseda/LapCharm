@@ -1,6 +1,6 @@
 {
   "name": "lapcharm",
-  "version": "3.4.2",
+  "version": "3.5.0",
   "description": "Laptop health monitor for Windows — battery, thermals, disk, CPU, RAM, and more.",
   "main": "out/main/index.js",
   "author": "Mahima Paseda",

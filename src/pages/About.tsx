@@ -9,7 +9,7 @@ const RELEASES_URL = 'https://github.com/mahimapaseda/LapCharm/releases'
 const REPO_URL = 'https://github.com/mahimapaseda/LapCharm'
 
 export default function About() {
-  const [version, setVersion] = useState('3.4.2')
+  const [version, setVersion] = useState('3.5.0')
 
   useEffect(() => {
     lc?.app?.getVersion?.()

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react'
-import { FileText, Download, FileJson, FileSpreadsheet } from 'lucide-react'
+import { FileText, Download } from 'lucide-react'
 import { generateItDiagnosticPdf, type DiagnosticHistoryRow } from '../utils/it-diagnostic-report'
 import './ModulePage.css'
 import './Reports.css'
@@ -17,38 +17,6 @@ export default function Reports() {
     }
     fetch()
   }, [days])
-
-  const exportJson = () => {
-    const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `lapcharm-report-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-  }
-
-  const exportCsv = () => {
-    if (history.length === 0) return
-    const escapeCsv = (value: unknown): string => {
-      const str = value == null ? '' : String(value)
-      if (/[",\n\r]/.test(str)) {
-        return `"${str.replace(/"/g, '""')}"`
-      }
-      return str
-    }
-    const keys = Object.keys(history[0])
-    const headers = keys.map(escapeCsv).join(',')
-    const rows = history.map((r) =>
-      keys.map((k) => escapeCsv((r as Record<string, unknown>)[k])).join(',')
-    )
-    const csv = [headers, ...rows].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `lapcharm-report-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-  }
 
   const exportPdf = () => {
     try {
@@ -86,12 +54,6 @@ export default function Reports() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
-          <button className="export-btn" onClick={exportJson}>
-            <FileJson size={16} /> JSON
-          </button>
-          <button className="export-btn" onClick={exportCsv}>
-            <FileSpreadsheet size={16} /> CSV
-          </button>
           <button
             className="export-btn export-btn-primary"
             onClick={exportPdf}

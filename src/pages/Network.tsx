@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
-import { Wifi, Cable, ArrowDown, ArrowUp } from 'lucide-react'
+import { Wifi, Cable, ArrowDown, ArrowUp, Gauge, Loader2 } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
+import { runSpeedTest, type SpeedTestResult } from '../utils/speed-test'
 import './ModulePage.css'
+import './Reports.css'
 
 const lc = window.lapcharm
 
@@ -31,6 +33,9 @@ function SignalBars({ percent }: { percent: number }) {
 
 export default function Network() {
   const { network, setNetwork } = useHealthStore()
+  const [testing, setTesting] = useState(false)
+  const [speedResult, setSpeedResult] = useState<SpeedTestResult | null>(null)
+  const [speedError, setSpeedError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +46,20 @@ export default function Network() {
     const id = setInterval(fetchData, 15000)
     return () => clearInterval(id)
   }, [])
+
+  const onSpeedTest = async () => {
+    setTesting(true)
+    setSpeedError(null)
+    try {
+      const result = await runSpeedTest()
+      setSpeedResult(result)
+    } catch (err) {
+      setSpeedResult(null)
+      setSpeedError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setTesting(false)
+    }
+  }
 
   const n = network
   const conn = n?.connectionType ?? (n?.wifiConnected ? 'wifi' : 'offline')
@@ -112,6 +131,57 @@ export default function Network() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div>
+            <h2 className="card-section-title" style={{ marginBottom: 4 }}>Speed test</h2>
+            <p className="stat-label" style={{ margin: 0 }}>
+              Measures download, upload, and latency via Cloudflare
+            </p>
+          </div>
+          <button
+            className="export-btn export-btn-primary"
+            onClick={onSpeedTest}
+            disabled={testing || conn === 'offline'}
+            title={conn === 'offline' ? 'Connect to the internet first' : 'Run speed test'}
+          >
+            {testing ? <Loader2 size={16} className="animate-spin" /> : <Gauge size={16} />}
+            {testing ? 'Testing…' : 'Run speed test'}
+          </button>
+        </div>
+
+        {speedError && (
+          <p style={{ color: 'var(--color-accent-red)', fontSize: 13, marginBottom: 12 }}>{speedError}</p>
+        )}
+
+        {speedResult && (
+          <div className="stat-grid">
+            <div className="stat-item">
+              <span className="stat-label">Download</span>
+              <span className="stat-value text-green">{speedResult.downloadMbps} Mbps</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Upload</span>
+              <span className="stat-value text-purple">{speedResult.uploadMbps} Mbps</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Latency</span>
+              <span className="stat-value text-blue">{speedResult.latencyMs} ms</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Server</span>
+              <span className="stat-value">{speedResult.server}</span>
+            </div>
+          </div>
+        )}
+
+        {!speedResult && !speedError && !testing && (
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>
+            Live adapter rates above are instantaneous. Use speed test for a full link measurement.
+          </p>
+        )}
       </div>
     </div>
   )
