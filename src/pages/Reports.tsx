@@ -1,33 +1,19 @@
 ﻿import { useState, useEffect } from 'react'
 import { FileText, Download, FileJson, FileSpreadsheet } from 'lucide-react'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import { generateItDiagnosticPdf, type DiagnosticHistoryRow } from '../utils/it-diagnostic-report'
 import './ModulePage.css'
 import './Reports.css'
 
 const lc = window.lapcharm
 
-interface HistoryRow {
-  id: number
-  timestamp: string
-  overall_score: number
-  battery_score: number
-  thermal_score: number
-  disk_score: number
-  cpuram_score: number
-  battery_health_percent: number
-  cpu_temp: number
-  ram_used_percent: number
-}
-
 export default function Reports() {
-  const [history, setHistory] = useState<HistoryRow[]>([])
+  const [history, setHistory] = useState<DiagnosticHistoryRow[]>([])
   const [days, setDays] = useState(7)
 
   useEffect(() => {
     const fetch = async () => {
       const res = await lc?.history?.get(days)
-      if (res?.success) setHistory(res.data as HistoryRow[])
+      if (res?.success) setHistory(res.data as DiagnosticHistoryRow[])
     }
     fetch()
   }, [days])
@@ -65,50 +51,7 @@ export default function Reports() {
   }
 
   const exportPdf = () => {
-    if (history.length === 0) return
-    const doc = new jsPDF()
-    
-    // Header
-    doc.setFontSize(22)
-    doc.setTextColor(79, 156, 249) // blue
-    doc.text('LapCharm Health Report', 14, 22)
-    
-    doc.setFontSize(11)
-    doc.setTextColor(100)
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30)
-    
-    // Summary
-    const latest = history[history.length - 1]
-    doc.setFontSize(14)
-    doc.setTextColor(0)
-    doc.text('Latest Snapshot', 14, 45)
-    
-    doc.setFontSize(11)
-    doc.text(`Overall Score: ${latest.overall_score}`, 14, 53)
-    doc.text(`Battery Health: ${latest.battery_health_percent}% (Score: ${latest.battery_score})`, 14, 59)
-    doc.text(`CPU Max Temp: ${latest.cpu_temp}°C (Score: ${latest.thermal_score})`, 14, 65)
-    doc.text(`Storage Score: ${latest.disk_score}`, 14, 71)
-    
-    // Table
-    const tableColumn = ["Date", "Score", "Battery", "Thermal", "Disk", "CPU/RAM"]
-    const tableRows = history.map(row => [
-      new Date(row.timestamp).toLocaleString(),
-      row.overall_score,
-      row.battery_score,
-      row.thermal_score,
-      row.disk_score,
-      row.cpuram_score
-    ])
-    
-    ;(doc as any).autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 85,
-      theme: 'grid',
-      headStyles: { fillColor: [79, 156, 249] }
-    })
-    
-    doc.save(`lapcharm-report-${new Date().toISOString().split('T')[0]}.pdf`)
+    generateItDiagnosticPdf(history, days)
   }
 
   return (
@@ -119,11 +62,10 @@ export default function Reports() {
         </div>
         <div>
           <h1 className="module-title">Reports & History</h1>
-          <p className="module-subtitle">Health history, trends, and exports</p>
+          <p className="module-subtitle">Health history and IT diagnostic export</p>
         </div>
       </div>
 
-      {/* Controls */}
       <div className="card reports-controls">
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-4)' }}>
           <span className="stat-label">Show last</span>
@@ -138,24 +80,28 @@ export default function Reports() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
-            <button className="export-btn" onClick={exportJson}>
-              <FileJson size={16} /> JSON
-            </button>
-            <button className="export-btn" onClick={exportCsv}>
-              <FileSpreadsheet size={16} /> CSV
-            </button>
-            <button className="export-btn export-btn-primary" onClick={exportPdf}>
-              <Download size={16} /> PDF Report
-            </button>
+          <button className="export-btn" onClick={exportJson}>
+            <FileJson size={16} /> JSON
+          </button>
+          <button className="export-btn" onClick={exportCsv}>
+            <FileSpreadsheet size={16} /> CSV
+          </button>
+          <button
+            className="export-btn export-btn-primary"
+            onClick={exportPdf}
+            disabled={history.length === 0}
+            title={history.length === 0 ? 'No snapshots to export' : 'Export IT technical diagnostic PDF'}
+          >
+            <Download size={16} /> IT Diagnostic PDF
+          </button>
         </div>
       </div>
 
-      {/* History table */}
       <div className="card">
         <h2 className="card-section-title">Health History ({history.length} snapshots)</h2>
         {history.length === 0 ? (
           <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '40px 0' }}>
-            No history yet. Data is collected automatically every time you open the dashboard.
+            No history yet. Data is collected automatically in the background and when you open the dashboard.
           </p>
         ) : (
           <table className="data-table">
