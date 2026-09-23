@@ -66,7 +66,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
       <div className="sidebar-footer">
         <div className="branding-text">Software by Mahima Paseda · Sri Lanka</div>
-        <div className="version-badge">v3.4.1</div>
+        <div className="version-badge">v3.4.2</div>
       </div>
     </aside>
   )

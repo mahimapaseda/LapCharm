@@ -9,7 +9,7 @@ const RELEASES_URL = 'https://github.com/mahimapaseda/LapCharm/releases'
 const REPO_URL = 'https://github.com/mahimapaseda/LapCharm'
 
 export default function About() {
-  const [version, setVersion] = useState('3.4.1')
+  const [version, setVersion] = useState('3.4.2')
 
   useEffect(() => {
     lc?.app?.getVersion?.()
@@ -76,8 +76,7 @@ export default function About() {
       </div>
 
       <p className="about-tip">
-        Tip: Closing the window hides LapCharm in the system tray. Right-click the tray icon
-        and choose Quit to exit fully.
+        Tip: Closing the window fully exits LapCharm (it will not keep running in the background).
       </p>
     </div>
   )

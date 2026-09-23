@@ -44,12 +44,9 @@ function createWindow(): void {
     mainWindow?.show()
   })
 
-  // Close → hide to tray (share-friendly monitoring app)
-  mainWindow.on('close', (event) => {
-    if (!isQuitting) {
-      event.preventDefault()
-      mainWindow?.hide()
-    }
+  // Close = quit fully (do not leave a background tray process)
+  mainWindow.on('close', () => {
+    isQuitting = true
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -128,9 +125,12 @@ app.on('before-quit', () => {
 })
 
 app.on('window-all-closed', () => {
-  // Keep running in tray on Windows/Linux unless quitting
-  if (process.platform === 'darwin' && !isQuitting) return
-  if (!isQuitting) return
+  isQuitting = true
+  if (tray) {
+    tray.destroy()
+    tray = null
+    setTray(null)
+  }
   app.quit()
 })
 
@@ -143,8 +143,8 @@ ipcMain.on('window:maximize', () => {
   }
 })
 ipcMain.on('window:close', () => {
-  // Hide to tray (same as window X)
-  mainWindow?.hide()
+  isQuitting = true
+  mainWindow?.close()
 })
 
 ipcMain.handle('app:getVersion', () => app.getVersion())

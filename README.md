@@ -4,7 +4,7 @@
 
 # LapCharm
 
-[![Version](https://img.shields.io/badge/version-3.4.1-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.4.1)
+[![Version](https://img.shields.io/badge/version-3.4.2-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.4.2)
 [![Platform](https://img.shields.io/badge/platform-Windows%20x64-22d3a5)](https://github.com/mahimapaseda/LapCharm/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -19,7 +19,7 @@
 - **Overall health score** with letter grade and actionable recommendations
 - **Seven diagnostic modules** — Battery, Thermal, Storage, CPU & RAM, Audio, Network, Display
 - **History & export** — JSON, CSV, and PDF reports from saved snapshots
-- **System tray** and dark / light themes
+- **System tray shortcut** while the app is open, plus dark / light themes
 - **Windows-native** data via `systeminformation` and PowerShell/WMI
 
 ## Screenshots
@@ -42,11 +42,11 @@
 
 ## Install
 
-1. Open the [v3.4.1 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.4.1)
-2. Download **LapCharm Setup 3.4.1.exe**
+1. Open the [v3.4.2 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.4.2)
+2. Download **LapCharm Setup 3.4.2.exe**
 3. Run the NSIS installer (Windows x64)
 
-Closing the window keeps LapCharm running in the system tray. Use **Quit** from the tray menu to exit.
+Closing the window fully exits LapCharm.
 
 ## Development
 
