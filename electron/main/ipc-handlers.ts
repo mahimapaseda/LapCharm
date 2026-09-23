@@ -6,32 +6,8 @@ import { getCpuRamInfo } from './collectors/cpu-ram'
 import { getAudioInfo } from './collectors/audio'
 import { getNetworkInfo } from './collectors/network'
 import { getDisplayInfo } from './collectors/display'
-import { getOverallHealthScore } from './collectors/health-score'
-import { getHistoryData, saveSnapshot } from './database'
-import { getCached, setCached } from './data-cache'
-
-// ============================================================
-// TTL config (milliseconds) — how long each module result
-// is reused before hitting system APIs again
-// ============================================================
-const TTL = {
-  battery:  10_000,   // 10s  — charge level changes slowly
-  thermal:   8_000,   //  8s  — temps can spike, but 8s is fine
-  disk:     30_000,   // 30s  — disk health is nearly static
-  cpuram:    6_000,   //  6s  — usage changes somewhat fast
-  audio:    60_000,   // 60s  — audio devices rarely change
-  network:  12_000,   // 12s  — signal changes gradually
-  display:  60_000,   // 60s  — display config is static
-  score:    12_000,   // 12s  — composite, refresh with battery
-}
-
-async function cached<T>(key: string, ttl: number, fn: () => Promise<T>): Promise<T> {
-  const hit = getCached<T>(key, ttl)
-  if (hit !== null) return hit
-  const data = await fn()
-  setCached(key, data)
-  return data
-}
+import { getHistoryData } from './database'
+import { cached, TTL, computeAndPersistHealthScore } from './health-service'
 
 export function registerIpcHandlers(ipcMain: IpcMain): void {
 
@@ -100,18 +76,7 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
 
   ipcMain.handle('health:score', async () => {
     try {
-      const data = await cached('score', TTL.score, async () => {
-        const [battery, thermal, disk, cpuram, network, audio] = await Promise.all([
-          cached('battery', TTL.battery, getBatteryInfo),
-          cached('thermal', TTL.thermal, getThermalInfo),
-          cached('disk',    TTL.disk,    getDiskInfo),
-          cached('cpuram',  TTL.cpuram,  getCpuRamInfo),
-          cached('network', TTL.network, getNetworkInfo),
-          cached('audio',   TTL.audio,   getAudioInfo)
-        ])
-        return getOverallHealthScore({ battery, thermal, disk, cpuram, network, audio })
-      })
-      saveSnapshot(data)
+      const data = await computeAndPersistHealthScore()
       return { success: true, data }
     } catch (e) {
       return { success: false, error: String(e) }

@@ -26,8 +26,13 @@ interface DbSchema {
   nextId: number
 }
 
+const SNAPSHOT_MIN_INTERVAL_MS = 5 * 60 * 1000 // 5 minutes
+const SNAPSHOT_SCORE_DELTA = 3
+
 let dbPath: string
 let cache: DbSchema | null = null
+let lastSavedAt = 0
+let lastSavedOverall: number | null = null
 
 function getDb(): DbSchema {
   if (cache) return cache
@@ -61,6 +66,15 @@ export function initDatabase(): void {
   console.log(`[LapCharm DB] Initialized at ${dbPath}`)
 }
 
+function shouldSaveSnapshot(overall: number): boolean {
+  const now = Date.now()
+  if (lastSavedOverall === null) return true
+  if (now - lastSavedAt >= SNAPSHOT_MIN_INTERVAL_MS) return true
+  if (Math.abs(overall - lastSavedOverall) >= SNAPSHOT_SCORE_DELTA) return true
+  return false
+}
+
+/** Persist a health snapshot at most every 5 minutes, or when overall score moves by ≥3. */
 export function saveSnapshot(score: {
   overall: number
   battery: number
@@ -73,7 +87,9 @@ export function saveSnapshot(score: {
   cpuTemp?: number
   diskHealth?: string
   ramUsedPercent?: number
-}): void {
+}): boolean {
+  if (!shouldSaveSnapshot(score.overall)) return false
+
   const db = getDb()
   const snapshot: HealthSnapshot = {
     id: db.nextId++,
@@ -92,6 +108,9 @@ export function saveSnapshot(score: {
   }
   db.snapshots.push(snapshot)
   saveDb()
+  lastSavedAt = Date.now()
+  lastSavedOverall = score.overall
+  return true
 }
 
 export function getHistoryData(days: number): HealthSnapshot[] {
@@ -99,4 +118,10 @@ export function getHistoryData(days: number): HealthSnapshot[] {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - days)
   return db.snapshots.filter((s) => new Date(s.timestamp) >= cutoff)
+}
+
+/** Reset throttle state (for unit tests). */
+export function _resetSnapshotThrottleForTests(): void {
+  lastSavedAt = 0
+  lastSavedOverall = null
 }

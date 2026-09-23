@@ -4,12 +4,12 @@ import logoUrl from '../assets/logo.png'
 import './ModulePage.css'
 import './About.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 const RELEASES_URL = 'https://github.com/mahimapaseda/LapCharm/releases'
 const REPO_URL = 'https://github.com/mahimapaseda/LapCharm'
 
 export default function About() {
-  const [version, setVersion] = useState('3.1.0')
+  const [version, setVersion] = useState('3.2.0')
 
   useEffect(() => {
     lc?.app?.getVersion?.()

@@ -5,7 +5,7 @@ import 'jspdf-autotable'
 import './ModulePage.css'
 import './Reports.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 interface HistoryRow {
   id: number
@@ -43,8 +43,18 @@ export default function Reports() {
 
   const exportCsv = () => {
     if (history.length === 0) return
-    const headers = Object.keys(history[0]).join(',')
-    const rows = history.map(r => Object.values(r).join(','))
+    const escapeCsv = (value: unknown): string => {
+      const str = value == null ? '' : String(value)
+      if (/[",\n\r]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`
+      }
+      return str
+    }
+    const keys = Object.keys(history[0])
+    const headers = keys.map(escapeCsv).join(',')
+    const rows = history.map((r) =>
+      keys.map((k) => escapeCsv((r as Record<string, unknown>)[k])).join(',')
+    )
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)

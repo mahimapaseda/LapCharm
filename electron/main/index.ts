@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
 import { initDatabase } from './database'
+import { setTray } from './tray-state'
+import { startHealthScheduler } from './scheduler'
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -86,6 +88,7 @@ function createTray(): void {
   tray.setContextMenu(contextMenu)
   tray.on('double-click', () => showMainWindow())
   tray.on('click', () => showMainWindow())
+  setTray(tray)
 }
 
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=256')
@@ -112,6 +115,7 @@ if (!gotLock) {
 
     createWindow()
     createTray()
+    startHealthScheduler()
 
     app.on('activate', () => {
       showMainWindow()

@@ -101,6 +101,7 @@ export interface HealthScoreState {
   cpuram: number
   network: number
   audio: number
+  display: number
   recommendations: string[]
 }
 

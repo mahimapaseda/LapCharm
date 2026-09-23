@@ -5,7 +5,7 @@ import { Wifi, Cable, ArrowDown, ArrowUp } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 function SignalBars({ percent }: { percent: number }) {
   const bars = [25, 50, 75, 100]

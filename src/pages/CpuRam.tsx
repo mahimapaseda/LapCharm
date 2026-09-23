@@ -6,7 +6,7 @@ import { formatBytes } from '../utils/formatters'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 export default function CpuRam() {
   const { cpuram, setCpuRam } = useHealthStore()

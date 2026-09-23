@@ -1,6 +1,6 @@
 {
   "name": "lapcharm",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Laptop health monitor for Windows — battery, thermals, disk, CPU, RAM, and more.",
   "main": "out/main/index.js",
   "author": "Mahima Paseda",
@@ -11,11 +11,11 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "package": "electron-builder --win",
-    "test": "jest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint src electron --ext .ts,.tsx"
   },
   "dependencies": {
-    "electron-updater": "^6.1.8",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.378.0",
@@ -40,7 +40,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vitest": "^2.1.9"
   },
   "build": {
     "appId": "com.lapcharm.app",

@@ -5,7 +5,7 @@ import { HardDrive, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 export default function Disk() {
   const { disk, setDisk } = useHealthStore()

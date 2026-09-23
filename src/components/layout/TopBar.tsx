@@ -23,7 +23,7 @@ interface Props {
 }
 
 export default function TopBar({ activePage, theme, toggleTheme }: Props) {
-  const win = (window as any).lapcharm?.window
+  const win = window.lapcharm?.window
 
   return (
     <header className="topbar" data-drag-region>

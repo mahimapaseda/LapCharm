@@ -1,6 +1,6 @@
 ﻿import { useEffect, useCallback } from 'react'
 import {
-  Battery, Thermometer, HardDrive, Cpu, Volume2, Wifi, AlertTriangle, CheckCircle
+  Battery, Thermometer, HardDrive, Cpu, Volume2, Wifi, Monitor, AlertTriangle, CheckCircle
 } from 'lucide-react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
@@ -9,7 +9,7 @@ import {
 } from 'recharts'
 import './Dashboard.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 // ─── Poll interval: 15 seconds ────────────────────────────────
 // IPC handlers cache results on the main-process side (6–60s TTL)
@@ -102,7 +102,8 @@ export default function Dashboard() {
     { subject: 'Storage', score: healthScore.disk     },
     { subject: 'CPU/RAM', score: healthScore.cpuram   },
     { subject: 'Network', score: healthScore.network  },
-    { subject: 'Audio',   score: healthScore.audio    }
+    { subject: 'Audio',   score: healthScore.audio    },
+    { subject: 'Display', score: healthScore.display ?? 0 }
   ] : []
 
   return (
@@ -168,6 +169,7 @@ export default function Dashboard() {
         <ModuleCard icon={Cpu}         label="CPU & RAM"      score={cpuram?.overallScore ?? 0}    value={cpuram?.usedPercent?.toFixed(0) ?? ''}        unit="% RAM"   color="var(--color-accent-purple)" />
         <ModuleCard icon={Wifi}        label="Network"        score={network?.networkScore ?? 0}   value={network?.connectionType === 'ethernet' ? 'LAN' : (network?.wifiSignalPercent != null ? network.wifiSignalPercent.toFixed(0) : 'N/A')} unit={network?.connectionType === 'wifi' && network?.wifiSignalPercent != null ? '% signal' : ''} color="var(--color-accent-cyan)"   />
         <ModuleCard icon={Volume2}     label="Audio"          score={audio?.audioScore ?? 0}       value={audio?.devices?.length ?? 0}                  unit="devices" color="var(--color-accent-purple)" />
+        <ModuleCard icon={Monitor}     label="Display"        score={healthScore?.display ?? 0}    value={healthScore?.display != null ? healthScore.display : 'N/A'} unit={healthScore?.display != null ? 'score' : ''} color="var(--color-accent-blue)" />
       </section>
 
       {/* Recommendations */}

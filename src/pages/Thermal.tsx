@@ -4,7 +4,7 @@ import ScoreRing from '../components/shared/ScoreRing'
 import { Thermometer, Wind, AlertTriangle, Info } from 'lucide-react'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 function getTempColor(temp: number | null | undefined): string {
   if (temp == null || temp <= 0) return 'var(--color-text-muted)'

@@ -4,7 +4,7 @@ import ScoreRing from '../components/shared/ScoreRing'
 import { Battery as BatteryIcon, AlertTriangle } from 'lucide-react'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 export default function Battery() {
   const { battery, setBattery } = useHealthStore()

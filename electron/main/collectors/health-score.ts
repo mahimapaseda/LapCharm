@@ -4,6 +4,7 @@ import type { DiskInfo } from './disk'
 import type { CpuRamInfo } from './cpu-ram'
 import type { NetworkInfo } from './network'
 import type { AudioInfo } from './audio'
+import type { DisplayInfo } from './display'
 
 interface AllModuleData {
   battery: BatteryInfo
@@ -12,6 +13,7 @@ interface AllModuleData {
   cpuram: CpuRamInfo
   network: NetworkInfo
   audio: AudioInfo
+  display: DisplayInfo
 }
 
 export interface OverallHealthScore {
@@ -23,6 +25,7 @@ export interface OverallHealthScore {
   cpuram: number
   network: number
   audio: number
+  display: number
   recommendations: string[]
   batteryHealthPercent: number
   batteryLevel: number
@@ -32,15 +35,16 @@ export interface OverallHealthScore {
 }
 
 export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
-  const { battery, thermal, disk, cpuram, network, audio } = data
+  const { battery, thermal, disk, cpuram, network, audio, display } = data
 
   const weights = {
     battery: battery.hasBattery ? 0.25 : 0,
     thermal: 0.20,
     disk: 0.25,
     cpuram: 0.15,
-    network: 0.10,
-    audio: 0.05
+    network: 0.07,
+    audio: 0.03,
+    display: 0.05
   }
 
   // Redistribute battery weight when no battery (desktop)
@@ -48,13 +52,15 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
   const norm = (w: number) => w / weightSum
 
   const audioScore = audio.audioScore
+  const displayScore = display.displayScore
   const overall = Math.round(
     battery.healthScore * norm(weights.battery) +
     thermal.thermalScore * norm(weights.thermal) +
     disk.overallDiskScore * norm(weights.disk) +
     cpuram.overallScore * norm(weights.cpuram) +
     network.networkScore * norm(weights.network) +
-    audioScore * norm(weights.audio)
+    audioScore * norm(weights.audio) +
+    displayScore * norm(weights.display)
   )
 
   const grade: OverallHealthScore['grade'] =
@@ -109,6 +115,10 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     recommendations.push('No active network connection detected.')
   }
 
+  if (display.monitors.length === 0) {
+    recommendations.push('No display detected. Check cable or graphics driver if the screen looks wrong.')
+  }
+
   if (recommendations.length === 0) {
     recommendations.push('Your laptop is in excellent health. Keep it up!')
   }
@@ -122,6 +132,7 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     cpuram: cpuram.overallScore,
     network: network.networkScore,
     audio: audioScore,
+    display: displayScore,
     recommendations,
     batteryHealthPercent: battery.healthPercent ?? 0,
     batteryLevel: battery.percent,

@@ -4,7 +4,7 @@ import ScoreRing from '../components/shared/ScoreRing'
 import { Volume2, Mic, Speaker, Bluetooth } from 'lucide-react'
 import './ModulePage.css'
 
-const lc = (window as any).lapcharm
+const lc = window.lapcharm
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
   Speaker:    Volume2,
