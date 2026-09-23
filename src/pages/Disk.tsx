@@ -54,13 +54,13 @@ export default function Disk() {
             <div className="stat-item">
               <span className="stat-label">Read Speed</span>
               <span className="stat-value text-blue">
-                {d?.totalReadSpeed ? `${formatBytes(d.totalReadSpeed)}/s` : 'N/A'}
+                {d?.totalReadSpeed != null && d.totalReadSpeed > 0 ? `${formatBytes(d.totalReadSpeed)}/s` : 'N/A'}
               </span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Write Speed</span>
               <span className="stat-value text-purple">
-                {d?.totalWriteSpeed ? `${formatBytes(d.totalWriteSpeed)}/s` : 'N/A'}
+                {d?.totalWriteSpeed != null && d.totalWriteSpeed > 0 ? `${formatBytes(d.totalWriteSpeed)}/s` : 'N/A'}
               </span>
             </div>
             <div className="stat-item">
@@ -84,6 +84,7 @@ export default function Disk() {
                 <th>Health</th>
                 <th>SMART</th>
                 <th>Temp</th>
+                <th>Wear</th>
                 <th>Score</th>
               </tr>
             </thead>
@@ -108,6 +109,7 @@ export default function Disk() {
                     }
                   </td>
                   <td>{drive.temperature != null ? `${drive.temperature}°C` : 'N/A'}</td>
+                  <td>{drive.wearLevel != null ? `${drive.wearLevel}%` : 'N/A'}</td>
                   <td style={{ fontWeight: 700, color: drive.diskScore >= 80 ? 'var(--color-accent-green)' : drive.diskScore >= 60 ? 'var(--color-accent-amber)' : 'var(--color-accent-red)' }}>
                     {drive.diskScore}
                   </td>

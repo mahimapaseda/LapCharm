@@ -24,10 +24,13 @@ export interface ThermalState {
   gpuTemp: number | null
   maxTemp: number | null
   fanSpeeds: number[]
-  isThrottling: boolean
+  isThrottling: boolean | null
   thermalScore: number
   sensorAvailable?: boolean
   zones?: { name: string; temp: number }[]
+  cpuTempSource?: 'package' | 'ohm' | 'zone' | 'none'
+  gpuTempSource?: 'nvidia' | 'si' | 'none'
+  systemZoneTemp?: number | null
 }
 
 export interface DiskState {
@@ -40,6 +43,10 @@ export interface DiskState {
     smartPassed: boolean | null
     temperature: number | null
     diskScore: number
+    wearLevel?: number | null
+    reallocatedSectors?: number | null
+    pendingSectors?: number | null
+    uncorrectableErrors?: number | null
   }[]
   partitions: {
     fs: string
@@ -48,8 +55,8 @@ export interface DiskState {
     used: number
     usedPercent: number
   }[]
-  totalReadSpeed: number
-  totalWriteSpeed: number
+  totalReadSpeed: number | null
+  totalWriteSpeed: number | null
   overallDiskScore: number
 }
 

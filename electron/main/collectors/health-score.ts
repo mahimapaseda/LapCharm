@@ -30,6 +30,7 @@ export interface OverallHealthScore {
   batteryHealthPercent: number
   batteryLevel: number
   cpuTemp: number
+  cpuTempSource: ThermalInfo['cpuTempSource']
   diskHealth: string
   ramUsedPercent: number
 }
@@ -79,15 +80,31 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     }
   }
 
-  if (!thermal.sensorAvailable) {
-    recommendations.push('Thermal sensors are limited on this system. GPU/zone readings are used when available.')
-  } else if (thermal.maxTemp != null && thermal.maxTemp > 90) {
-    recommendations.push('CPU temperature is dangerously high. Clean cooling vents and check thermal paste.')
-  } else if (thermal.maxTemp != null && thermal.maxTemp > 80) {
-    recommendations.push('System is running hot. Ensure good airflow and consider a cooling pad.')
+  if (thermal.cpuTempSource === 'none' || thermal.cpuTempSource === 'zone') {
+    recommendations.push(
+      'CPU package temperature is unavailable. Install LibreHardwareMonitor (with its WMI/server enabled) for accurate CPU temps.'
+    )
   }
 
-  if (thermal.isThrottling) {
+  if (!thermal.sensorAvailable) {
+    recommendations.push('Thermal sensors are limited on this system. GPU/zone readings are used when available.')
+  } else if (
+    (thermal.cpuTempSource === 'package' || thermal.cpuTempSource === 'ohm') &&
+    thermal.cpuTemp != null &&
+    thermal.cpuTemp > 90
+  ) {
+    recommendations.push('CPU temperature is dangerously high. Clean cooling vents and check thermal paste.')
+  } else if (
+    (thermal.cpuTempSource === 'package' || thermal.cpuTempSource === 'ohm') &&
+    thermal.cpuTemp != null &&
+    thermal.cpuTemp > 80
+  ) {
+    recommendations.push('System is running hot. Ensure good airflow and consider a cooling pad.')
+  } else if (thermal.cpuTempSource === 'zone' && thermal.systemZoneTemp != null && thermal.systemZoneTemp > 90) {
+    recommendations.push('System thermal zones are very hot. Ensure good airflow (values may not be CPU package).')
+  }
+
+  if (thermal.isThrottling === true) {
     recommendations.push('Thermal throttling detected. Performance may be limited to prevent overheating.')
   }
 
@@ -136,7 +153,8 @@ export function getOverallHealthScore(data: AllModuleData): OverallHealthScore {
     recommendations,
     batteryHealthPercent: battery.healthPercent ?? 0,
     batteryLevel: battery.percent,
-    cpuTemp: thermal.cpuTemp ?? thermal.maxTemp ?? 0,
+    cpuTemp: thermal.cpuTemp ?? thermal.systemZoneTemp ?? thermal.maxTemp ?? 0,
+    cpuTempSource: thermal.cpuTempSource,
     diskHealth: disk.drives[0]?.healthStatus || 'Unknown',
     ramUsedPercent: cpuram.usedPercent
   }

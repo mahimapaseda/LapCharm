@@ -19,6 +19,10 @@ function formatTemp(temp: number | null | undefined): string {
   return `${temp.toFixed(1)}°C`
 }
 
+function hasReliableCpu(source: string | undefined): boolean {
+  return source === 'package' || source === 'ohm'
+}
+
 export default function Thermal() {
   const { thermal, setThermal } = useHealthStore()
 
@@ -33,8 +37,26 @@ export default function Thermal() {
   }, [])
 
   const t = thermal
+  const reliableCpu = hasReliableCpu(t?.cpuTempSource)
   const hasCores = (t?.cpuTempPerCore?.length ?? 0) > 0
   const hasZones = (t?.zones?.length ?? 0) > 0
+  const weakSensors = !reliableCpu
+
+  const cpuLabel = reliableCpu ? 'CPU Temp' : t?.cpuTempSource === 'zone' ? 'System zone' : 'CPU Temp'
+  const cpuDisplay = reliableCpu
+    ? t?.cpuTemp
+    : t?.cpuTempSource === 'zone'
+    ? t?.systemZoneTemp ?? null
+    : null
+
+  const subtitle = reliableCpu
+    ? 'CPU package and GPU temperatures'
+    : 'Limited sensors — install LibreHardwareMonitor for package CPU temps'
+
+  const throttleLabel =
+    t?.isThrottling === true ? 'Yes' : t?.isThrottling === false ? 'No' : 'Unknown'
+  const throttleClass =
+    t?.isThrottling === true ? 'text-red' : t?.isThrottling === false ? 'text-green' : 'text-muted'
 
   return (
     <div className="module-page">
@@ -44,7 +66,7 @@ export default function Thermal() {
         </div>
         <div>
           <h1 className="module-title">Thermal Monitor</h1>
-          <p className="module-subtitle">Real-time CPU & GPU temperatures</p>
+          <p className="module-subtitle">{subtitle}</p>
         </div>
       </div>
 
@@ -55,9 +77,9 @@ export default function Thermal() {
         <div className="card stat-card flex-1">
           <div className="stat-grid">
             <div className="stat-item">
-              <span className="stat-label">CPU Temp</span>
-              <span className="stat-value" style={{ color: getTempColor(t?.cpuTemp) }}>
-                {formatTemp(t?.cpuTemp)}
+              <span className="stat-label">{cpuLabel}</span>
+              <span className="stat-value" style={{ color: getTempColor(cpuDisplay) }}>
+                {formatTemp(cpuDisplay)}
               </span>
             </div>
             <div className="stat-item">
@@ -74,21 +96,20 @@ export default function Thermal() {
             </div>
             <div className="stat-item">
               <span className="stat-label">Throttling</span>
-              <span className={`stat-value ${t?.isThrottling ? 'text-red' : 'text-green'}`}>
-                {t?.isThrottling ? 'Yes' : 'No'}
-              </span>
+              <span className={`stat-value ${throttleClass}`}>{throttleLabel}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {t && t.sensorAvailable === false && (
+      {weakSensors && (
         <div className="card warning-card">
           <Info size={18} color="var(--color-accent-amber)" />
           <div>
-            <p className="warning-title">Limited thermal sensors</p>
+            <p className="warning-title">CPU package temperature unavailable</p>
             <p className="warning-desc">
-              Direct CPU sensors are unavailable without admin access. Showing thermal-zone and GPU readings when present.
+              Windows ACPI zones are not the CPU die. Install LibreHardwareMonitor and enable its
+              remote/WMI access for accurate package CPU temps. Showing system zones and GPU when present.
             </p>
           </div>
         </div>
@@ -121,7 +142,7 @@ export default function Thermal() {
 
       {hasZones && (
         <div className="card">
-          <h2 className="card-section-title">Thermal Zones</h2>
+          <h2 className="card-section-title">Thermal Zones (ACPI)</h2>
           <div className="core-grid">
             {t!.zones!.map((z, i) => (
               <div key={i} className="core-item">
@@ -159,7 +180,7 @@ export default function Thermal() {
         </div>
       )}
 
-      {t?.isThrottling && (
+      {t?.isThrottling === true && (
         <div className="card warning-card" style={{ borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
           <AlertTriangle size={18} color="var(--color-accent-red)" />
           <div>

@@ -40,6 +40,9 @@ function baseThermal(over: Partial<ThermalInfo> = {}): ThermalInfo {
     thermalScore: 100,
     sensorAvailable: true,
     zones: [],
+    cpuTempSource: 'package',
+    gpuTempSource: 'none',
+    systemZoneTemp: null,
     ...over
   }
 }
@@ -55,18 +58,18 @@ function baseDisk(over: Partial<DiskInfo> = {}): DiskInfo {
         healthStatus: 'Good',
         healthPercent: 95,
         smartPassed: true,
-        reallocatedSectors: 0,
-        pendingSectors: 0,
-        uncorrectableErrors: 0,
+        reallocatedSectors: null,
+        pendingSectors: null,
+        uncorrectableErrors: null,
         wearLevel: null,
-        readSpeed: 0,
-        writeSpeed: 0,
+        readSpeed: null,
+        writeSpeed: null,
         diskScore: 95
       }
     ],
     partitions: [{ fs: 'NTFS', mount: 'C:', size: 512e9, used: 100e9, usedPercent: 20 }],
-    totalReadSpeed: 0,
-    totalWriteSpeed: 0,
+    totalReadSpeed: null,
+    totalWriteSpeed: null,
     overallDiskScore: 95,
     ...over
   }
@@ -206,11 +209,37 @@ describe('getOverallHealthScore', () => {
   it('recommends on high temperature', () => {
     const score = getOverallHealthScore(
       allModules({
-        thermal: { maxTemp: 95, cpuTemp: 95, thermalScore: 5, isThrottling: true, sensorAvailable: true }
+        thermal: {
+          maxTemp: 95,
+          cpuTemp: 95,
+          thermalScore: 5,
+          isThrottling: true,
+          sensorAvailable: true,
+          cpuTempSource: 'package'
+        }
       })
     )
     expect(score.recommendations.some((r) => /dangerously high/i.test(r))).toBe(true)
     expect(score.recommendations.some((r) => /throttling/i.test(r))).toBe(true)
+    expect(score.cpuTempSource).toBe('package')
+  })
+
+  it('does not treat ACPI zone heat as CPU package alert', () => {
+    const score = getOverallHealthScore(
+      allModules({
+        thermal: {
+          cpuTemp: null,
+          maxTemp: 95,
+          systemZoneTemp: 95,
+          thermalScore: 5,
+          isThrottling: null,
+          sensorAvailable: true,
+          cpuTempSource: 'zone'
+        }
+      })
+    )
+    expect(score.recommendations.some((r) => /LibreHardwareMonitor/i.test(r))).toBe(true)
+    expect(score.recommendations.some((r) => /CPU temperature is dangerously high/i.test(r))).toBe(false)
   })
 
   it('recommends on bad disk', () => {
@@ -226,12 +255,12 @@ describe('getOverallHealthScore', () => {
               healthStatus: 'Bad',
               healthPercent: 20,
               smartPassed: false,
-              reallocatedSectors: 0,
-              pendingSectors: 0,
-              uncorrectableErrors: 0,
+              reallocatedSectors: null,
+              pendingSectors: null,
+              uncorrectableErrors: null,
               wearLevel: null,
-              readSpeed: 0,
-              writeSpeed: 0,
+              readSpeed: null,
+              writeSpeed: null,
               diskScore: 20
             }
           ],
@@ -247,7 +276,13 @@ describe('getOverallHealthScore', () => {
     const score = getOverallHealthScore(
       allModules({
         battery: { healthScore: 20, healthPercent: 30 },
-        thermal: { thermalScore: 10, maxTemp: 95, cpuTemp: 95, sensorAvailable: true },
+        thermal: {
+          thermalScore: 10,
+          maxTemp: 95,
+          cpuTemp: 95,
+          sensorAvailable: true,
+          cpuTempSource: 'package'
+        },
         disk: { overallDiskScore: 20 },
         cpuram: { overallScore: 20, usedPercent: 90 },
         network: { networkScore: 30, connectionType: 'offline' },

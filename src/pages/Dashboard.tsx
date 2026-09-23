@@ -164,7 +164,34 @@ export default function Dashboard() {
       {/* Module Cards Grid */}
       <section className="module-grid">
         <ModuleCard icon={Battery}     label="Battery Health" score={battery?.healthScore ?? 0}   value={battery?.healthPercent != null ? battery.healthPercent.toFixed(1) : 'N/A'} unit={battery?.healthPercent != null ? '%' : ''} color="var(--color-accent-green)"  />
-        <ModuleCard icon={Thermometer} label="CPU Temp"       score={thermal?.thermalScore ?? 0}   value={thermal?.cpuTemp != null ? thermal.cpuTemp.toFixed(1) : (thermal?.maxTemp != null ? thermal.maxTemp.toFixed(1) : 'N/A')} unit={thermal?.cpuTemp != null || thermal?.maxTemp != null ? '°C' : ''} color="var(--color-accent-amber)"  />
+        <ModuleCard
+          icon={Thermometer}
+          label={
+            thermal?.cpuTempSource === 'package' || thermal?.cpuTempSource === 'ohm'
+              ? 'CPU Temp'
+              : thermal?.cpuTempSource === 'zone'
+              ? 'System zone'
+              : 'Thermal'
+          }
+          score={thermal?.thermalScore ?? 0}
+          value={
+            thermal?.cpuTempSource === 'package' || thermal?.cpuTempSource === 'ohm'
+              ? (thermal?.cpuTemp != null ? thermal.cpuTemp.toFixed(1) : 'N/A')
+              : thermal?.cpuTempSource === 'zone'
+              ? (thermal?.systemZoneTemp != null ? thermal.systemZoneTemp.toFixed(1) : 'N/A')
+              : (thermal?.gpuTemp != null ? thermal.gpuTemp.toFixed(1) : 'N/A')
+          }
+          unit={
+            (thermal?.cpuTempSource === 'package' || thermal?.cpuTempSource === 'ohm') && thermal?.cpuTemp != null
+              ? '°C'
+              : thermal?.cpuTempSource === 'zone' && thermal?.systemZoneTemp != null
+              ? '°C'
+              : thermal?.gpuTemp != null
+              ? '°C GPU'
+              : ''
+          }
+          color="var(--color-accent-amber)"
+        />
         <ModuleCard icon={HardDrive}   label="Storage"        score={disk?.overallDiskScore ?? 0}  value={disk?.drives?.[0]?.healthStatus ?? ''}        color="var(--color-accent-blue)"   />
         <ModuleCard icon={Cpu}         label="CPU & RAM"      score={cpuram?.overallScore ?? 0}    value={cpuram?.usedPercent?.toFixed(0) ?? ''}        unit="% RAM"   color="var(--color-accent-purple)" />
         <ModuleCard icon={Wifi}        label="Network"        score={network?.networkScore ?? 0}   value={network?.connectionType === 'ethernet' ? 'LAN' : (network?.wifiSignalPercent != null ? network.wifiSignalPercent.toFixed(0) : 'N/A')} unit={network?.connectionType === 'wifi' && network?.wifiSignalPercent != null ? '% signal' : ''} color="var(--color-accent-cyan)"   />

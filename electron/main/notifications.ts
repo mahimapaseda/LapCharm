@@ -29,10 +29,14 @@ export function maybeNotifyHealthAlerts(score: OverallHealthScore): void {
     )
   }
 
-  if (score.cpuTemp > 90 && canFire('thermal-hot')) {
+  if (
+    (score.cpuTempSource === 'package' || score.cpuTempSource === 'ohm') &&
+    score.cpuTemp > 90 &&
+    canFire('thermal-hot')
+  ) {
     notify(
       'LapCharm — High temperature',
-      `CPU/system temperature is ${score.cpuTemp.toFixed(1)}°C. Check cooling and airflow.`
+      `CPU temperature is ${score.cpuTemp.toFixed(1)}°C. Check cooling and airflow.`
     )
   }
 
