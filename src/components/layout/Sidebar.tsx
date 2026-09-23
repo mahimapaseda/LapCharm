@@ -36,7 +36,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
   const [version, setVersion] = useState('3.5.2')
 
   useEffect(() => {
-    window.lapcharm?.app?.getVersion?.()
+    window.systemlens?.app?.getVersion?.()
       ?.then((v: string) => { if (v) setVersion(v) })
       .catch(() => {})
   }, [])
@@ -44,7 +44,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="sidebar-brand-name">LapCharm</div>
+        <div className="sidebar-brand-name">SystemLens</div>
         <div className="sidebar-brand-tag">Laptop health monitor</div>
       </div>
 

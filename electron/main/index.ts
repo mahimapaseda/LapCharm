@@ -66,7 +66,7 @@ function createTray(): void {
   tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon)
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Open LapCharm', click: () => showMainWindow() },
+    { label: 'Open SystemLens', click: () => showMainWindow() },
     {
       label: 'Check for updates…',
       click: () => shell.openExternal('https://github.com/mahimapaseda/LapCharm/releases')
@@ -81,7 +81,7 @@ function createTray(): void {
     }
   ])
 
-  tray.setToolTip('LapCharm — Laptop Health Monitor')
+  tray.setToolTip('SystemLens — Laptop Health Monitor')
   tray.setContextMenu(contextMenu)
   tray.on('double-click', () => showMainWindow())
   tray.on('click', () => showMainWindow())
@@ -101,7 +101,7 @@ if (!gotLock) {
   })
 
   app.whenReady().then(() => {
-    electronApp.setAppUserModelId('com.lapcharm.app')
+    electronApp.setAppUserModelId('com.systemlens.app')
 
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)

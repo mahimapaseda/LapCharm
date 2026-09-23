@@ -1,4 +1,4 @@
-﻿import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import {
   Battery, Thermometer, HardDrive, Cpu, Volume2, Wifi, Monitor, AlertTriangle, CheckCircle
 } from 'lucide-react'
@@ -9,7 +9,7 @@ import {
 } from 'recharts'
 import './Dashboard.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 // ─── Poll interval: 15 seconds ────────────────────────────────
 // IPC handlers cache results on the main-process side (6–60s TTL)

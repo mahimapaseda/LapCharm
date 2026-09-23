@@ -1,10 +1,10 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { Thermometer, Wind, AlertTriangle, Info } from 'lucide-react'
 import './ModulePage.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 function getTempColor(temp: number | null | undefined): string {
   if (temp == null || temp <= 0) return 'var(--color-text-muted)'

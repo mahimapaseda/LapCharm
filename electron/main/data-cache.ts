@@ -1,5 +1,5 @@
 /**
- * LapCharm Data Cache
+ * SystemLens Data Cache
  * 
  * Stores the last successful result for each module.
  * The IPC handler checks the cache first — if the cached value

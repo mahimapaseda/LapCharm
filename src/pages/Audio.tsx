@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { Volume2, Mic, Bluetooth, Loader2, Play } from 'lucide-react'
@@ -6,7 +6,7 @@ import { playSpeakerTest, runMicrophoneTest, type MicTestResult } from '../utils
 import './ModulePage.css'
 import './Reports.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
   Speaker: Volume2,
@@ -59,7 +59,7 @@ export default function Audio() {
       const msg = err instanceof Error ? err.message : String(err)
       setMicError(
         /Permission|NotAllowed|denied/i.test(msg)
-          ? 'Microphone permission denied. Allow mic access for LapCharm in Windows settings.'
+          ? 'Microphone permission denied. Allow mic access for SystemLens in Windows settings.'
           : msg
       )
     } finally {

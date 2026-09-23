@@ -1,10 +1,10 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { FileText, Download } from 'lucide-react'
 import { generateItDiagnosticPdf, type DiagnosticHistoryRow } from '../utils/it-diagnostic-report'
 import './ModulePage.css'
 import './Reports.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 export default function Reports() {
   const [history, setHistory] = useState<DiagnosticHistoryRow[]>([])

@@ -23,14 +23,14 @@ interface Props {
 }
 
 export default function TopBar({ activePage, theme, toggleTheme }: Props) {
-  const win = window.lapcharm?.window
+  const win = window.systemlens?.window
 
   return (
     <header className="topbar" data-drag-region>
       <div className="topbar-left">
         <div className="topbar-logo">
-          <img src={logoUrl} alt="LapCharm" className="logo-mark" width={28} height={28} draggable={false} />
-          <span className="logo-text">LapCharm</span>
+          <img src={logoUrl} alt="SystemLens" className="logo-mark" width={28} height={28} draggable={false} />
+          <span className="logo-text">SystemLens</span>
         </div>
         <div className="topbar-divider" />
         <span className="topbar-page-title">{PAGE_TITLES[activePage]}</span>

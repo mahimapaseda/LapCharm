@@ -1,11 +1,11 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { HardDrive, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
 import './ModulePage.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 export default function Disk() {
   const { disk, setDisk } = useHealthStore()

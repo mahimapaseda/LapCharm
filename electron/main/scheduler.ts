@@ -10,14 +10,14 @@ export function startHealthScheduler(): void {
 
   cron.schedule('*/15 * * * *', () => {
     computeAndPersistHealthScore().catch((err) => {
-      console.error('[LapCharm] Scheduled health check failed:', err)
+      console.error('[SystemLens] Scheduled health check failed:', err)
     })
   })
 
   // Initial background sample shortly after launch (tray tooltip + history)
   setTimeout(() => {
     computeAndPersistHealthScore().catch((err) => {
-      console.error('[LapCharm] Initial health check failed:', err)
+      console.error('[SystemLens] Initial health check failed:', err)
     })
   }, 8_000)
 }

@@ -58,12 +58,12 @@ function saveDb(): void {
 }
 
 export function initDatabase(): void {
-  const dbDir = join(app.getPath('userData'), 'lapcharm')
+  const dbDir = join(app.getPath('userData'), 'systemlens')
   mkdirSync(dbDir, { recursive: true })
   dbPath = join(dbDir, 'health.json')
   // Pre-load cache
   getDb()
-  console.log(`[LapCharm DB] Initialized at ${dbPath}`)
+  console.log(`[SystemLens DB] Initialized at ${dbPath}`)
 }
 
 function shouldSaveSnapshot(overall: number): boolean {

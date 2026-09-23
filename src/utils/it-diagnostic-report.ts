@@ -185,7 +185,7 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
     throw new Error('No health snapshots available to export.')
   }
   if (typeof autoTable !== 'function') {
-    throw new Error('PDF table plugin failed to load. Reinstall LapCharm or restart the app.')
+    throw new Error('PDF table plugin failed to load. Reinstall SystemLens or restart the app.')
   }
 
   const sorted = [...history].sort(
@@ -213,7 +213,7 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
   doc.setTextColor(...COLORS.white)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(18)
-  doc.text('LapCharm', margin, 16)
+  doc.text('SystemLens', margin, 16)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.text('Laptop Health Diagnostic Report', margin, 23)
@@ -391,13 +391,13 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
     doc.setTextColor(...COLORS.muted)
     doc.setFont('helvetica', 'normal')
     doc.text(
-      'LapCharm local telemetry. Confirm Critical findings with OEM tools before hardware replacement.',
+      'SystemLens local telemetry. Confirm Critical findings with OEM tools before hardware replacement.',
       margin,
       290
     )
     doc.text(`${reportId}  ·  p.${p}/${pageCount}`, pageW - margin, 290, { align: 'right' })
   }
 
-  downloadPdfBlob(doc, `LapCharm-IT-Diagnostic-${reportId}.pdf`)
+  downloadPdfBlob(doc, `SystemLens-IT-Diagnostic-${reportId}.pdf`)
   return true
 }

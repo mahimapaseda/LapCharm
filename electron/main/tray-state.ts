@@ -8,5 +8,5 @@ export function setTray(tray: Tray | null): void {
 
 export function updateTrayHealthTooltip(overall: number, grade: string): void {
   if (!trayRef) return
-  trayRef.setToolTip(`LapCharm — Health: ${overall} (Grade ${grade})`)
+  trayRef.setToolTip(`SystemLens — Health: ${overall} (Grade ${grade})`)
 }

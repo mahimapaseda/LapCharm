@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="docs/branding/logo.png" alt="LapCharm logo" width="96" />
+  <img src="docs/branding/logo.png" alt="SystemLens logo" width="96" />
 </p>
 
-# LapCharm
+# SystemLens
 
-[![Version](https://img.shields.io/badge/version-3.5.2-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.5.2)
+[![Version](https://img.shields.io/badge/version-4.0.0-2dd4a8)](https://github.com/mahimapaseda/LapCharm/releases/tag/v4.0.0)
 [![Platform](https://img.shields.io/badge/platform-Windows%20x64-22d3a5)](https://github.com/mahimapaseda/LapCharm/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Premium real-time laptop health monitoring** — battery, thermals, disk, CPU, RAM, audio, network, and display diagnostics in a clean desktop app.
 
 <p align="center">
-  <img src="docs/screenshots/dashboard.png" alt="LapCharm Dashboard" width="900" />
+  <img src="docs/screenshots/dashboard.png" alt="SystemLens Dashboard" width="900" />
 </p>
 
 ## Features
@@ -33,7 +33,7 @@
 | ![Storage](docs/screenshots/disk.png) | ![CPU & RAM](docs/screenshots/cpuram.png) |
 
 <p align="center">
-  <img src="docs/screenshots/reports.png" alt="LapCharm Reports" width="900" />
+  <img src="docs/screenshots/reports.png" alt="SystemLens Reports" width="900" />
   <br />
   <em>History snapshots and JSON / CSV / PDF export</em>
 </p>
@@ -42,11 +42,11 @@
 
 ## Install
 
-1. Open the [v3.5.2 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v3.5.2)
-2. Download **LapCharm Setup 3.5.2.exe**
+1. Open the [v4.0.0 release](https://github.com/mahimapaseda/LapCharm/releases/tag/v4.0.0)
+2. Download **SystemLens Setup 4.0.0.exe**
 3. Run the NSIS installer (Windows x64)
 
-Closing the window fully exits LapCharm.
+Closing the window fully exits SystemLens.
 
 ## Development
 
@@ -73,7 +73,7 @@ flowchart LR
     DB[JSON Snapshots]
   end
   subgraph preloadBridge [Preload]
-    Bridge["window.lapcharm"]
+    Bridge["window.systemlens"]
   end
   subgraph rendererUI [Renderer]
     Pages[React Pages]
@@ -94,4 +94,4 @@ flowchart LR
 
 ## License
 
-MIT © LapCharm Team
+MIT © SystemLens Team

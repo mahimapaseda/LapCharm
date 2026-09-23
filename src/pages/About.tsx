@@ -4,7 +4,7 @@ import logoUrl from '../assets/logo.png'
 import './ModulePage.css'
 import './About.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 const RELEASES_URL = 'https://github.com/mahimapaseda/LapCharm/releases'
 const REPO_URL = 'https://github.com/mahimapaseda/LapCharm'
 
@@ -24,9 +24,9 @@ export default function About() {
   return (
     <div className="module-page about-page">
       <div className="about-hero card">
-        <img src={logoUrl} alt="LapCharm" className="about-logo" width={72} height={72} />
+        <img src={logoUrl} alt="SystemLens" className="about-logo" width={72} height={72} />
         <div className="about-hero-text">
-          <h1 className="module-title">LapCharm</h1>
+          <h1 className="module-title">SystemLens</h1>
           <p className="module-subtitle">Laptop health monitor for Windows</p>
           <span className="about-version">Version {version}</span>
         </div>
@@ -35,7 +35,7 @@ export default function About() {
       <div className="card about-block">
         <h2 className="card-section-title">About</h2>
         <p className="about-copy">
-          LapCharm helps you understand your laptop’s health — battery, thermals, storage,
+          SystemLens helps you understand your laptop’s health — battery, thermals, storage,
           CPU, RAM, audio, network, and display — with a clear score and exportable reports.
           All diagnostics run locally on your PC.
         </p>
@@ -76,7 +76,7 @@ export default function About() {
       </div>
 
       <p className="about-tip">
-        Tip: Closing the window fully exits LapCharm (it will not keep running in the background).
+        Tip: Closing the window fully exits SystemLens (it will not keep running in the background).
       </p>
     </div>
   )

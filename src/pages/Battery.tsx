@@ -1,10 +1,10 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { Battery as BatteryIcon, AlertTriangle } from 'lucide-react'
 import './ModulePage.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 export default function Battery() {
   const { battery, setBattery } = useHealthStore()

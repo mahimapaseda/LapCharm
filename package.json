@@ -1,6 +1,6 @@
 {
-  "name": "lapcharm",
-  "version": "3.5.2",
+  "name": "systemlens",
+  "version": "4.0.0",
   "description": "Laptop health monitor for Windows — battery, thermals, disk, CPU, RAM, and more.",
   "main": "out/main/index.js",
   "author": "Mahima Paseda",
@@ -44,8 +44,8 @@
     "vitest": "^2.1.9"
   },
   "build": {
-    "appId": "com.lapcharm.app",
-    "productName": "LapCharm",
+    "appId": "com.systemlens.app",
+    "productName": "SystemLens",
     "directories": {
       "buildResources": "assets",
       "output": "release"
@@ -74,7 +74,7 @@
       "installerHeaderIcon": "assets/icons/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "LapCharm"
+      "shortcutName": "SystemLens"
     }
   }
 }

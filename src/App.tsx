@@ -28,12 +28,12 @@ export type Page =
 export default function App() {
   const [activePage, setActivePage] = useState<Page>('dashboard')
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('lapcharm-theme') as 'dark' | 'light') || 'dark'
+    return (localStorage.getItem('systemlens-theme') as 'dark' | 'light') || 'dark'
   })
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('lapcharm-theme', theme)
+    localStorage.setItem('systemlens-theme', theme)
   }, [theme])
 
   const toggleTheme = () => {

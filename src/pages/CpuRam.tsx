@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { Cpu } from 'lucide-react'
@@ -6,7 +6,7 @@ import { formatBytes } from '../utils/formatters'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import './ModulePage.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 export default function CpuRam() {
   const { cpuram, setCpuRam } = useHealthStore()

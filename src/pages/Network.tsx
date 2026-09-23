@@ -6,7 +6,7 @@ import { formatBytes } from '../utils/formatters'
 import './ModulePage.css'
 import './Reports.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 export interface SpeedTestResult {
   downloadMbps: number

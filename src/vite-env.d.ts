@@ -5,9 +5,9 @@ declare module '*.png' {
   export default src
 }
 
-type LapCharmResult<T> = { success: true; data: T } | { success: false; error: string }
+type SystemLensResult<T> = { success: true; data: T } | { success: false; error: string }
 
-interface LapCharmAPI {
+interface SystemLensAPI {
   window: {
     minimize: () => void
     maximize: () => void
@@ -20,23 +20,23 @@ interface LapCharmAPI {
     openExternal: (url: string) => Promise<void>
   }
   battery: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').BatteryState>>
+    get: () => Promise<SystemLensResult<import('./store/health.store').BatteryState>>
   }
   thermal: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').ThermalState>>
+    get: () => Promise<SystemLensResult<import('./store/health.store').ThermalState>>
   }
   disk: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').DiskState>>
+    get: () => Promise<SystemLensResult<import('./store/health.store').DiskState>>
   }
   cpuram: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').CpuRamState>>
+    get: () => Promise<SystemLensResult<import('./store/health.store').CpuRamState>>
   }
   audio: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').AudioState>>
+    get: () => Promise<SystemLensResult<import('./store/health.store').AudioState>>
   }
   network: {
-    get: () => Promise<LapCharmResult<import('./store/health.store').NetworkState>>
-    speedTest: () => Promise<LapCharmResult<{
+    get: () => Promise<SystemLensResult<import('./store/health.store').NetworkState>>
+    speedTest: () => Promise<SystemLensResult<{
       downloadMbps: number
       uploadMbps: number
       latencyMs: number
@@ -44,16 +44,16 @@ interface LapCharmAPI {
     }>>
   }
   display: {
-    get: () => Promise<LapCharmResult<unknown>>
+    get: () => Promise<SystemLensResult<unknown>>
   }
   health: {
-    score: () => Promise<LapCharmResult<import('./store/health.store').HealthScoreState>>
+    score: () => Promise<SystemLensResult<import('./store/health.store').HealthScoreState>>
   }
   history: {
-    get: (days?: number) => Promise<LapCharmResult<unknown[]>>
+    get: (days?: number) => Promise<SystemLensResult<unknown[]>>
   }
 }
 
 interface Window {
-  lapcharm: LapCharmAPI
+  systemlens: SystemLensAPI
 }

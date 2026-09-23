@@ -24,8 +24,8 @@ function notify(title: string, body: string): void {
 export function maybeNotifyHealthAlerts(score: OverallHealthScore): void {
   if (score.overall < 55 && canFire('overall-low')) {
     notify(
-      'LapCharm — Health needs attention',
-      `Overall score is ${score.overall} (Grade ${score.grade}). Open LapCharm for recommendations.`
+      'SystemLens — Health needs attention',
+      `Overall score is ${score.overall} (Grade ${score.grade}). Open SystemLens for recommendations.`
     )
   }
 
@@ -35,14 +35,14 @@ export function maybeNotifyHealthAlerts(score: OverallHealthScore): void {
     canFire('thermal-hot')
   ) {
     notify(
-      'LapCharm — High temperature',
+      'SystemLens — High temperature',
       `CPU temperature is ${score.cpuTemp.toFixed(1)}°C. Check cooling and airflow.`
     )
   }
 
   if (score.diskHealth === 'Bad' && canFire('disk-bad')) {
     notify(
-      'LapCharm — Disk failure risk',
+      'SystemLens — Disk failure risk',
       'A drive reported Bad health. Back up your data immediately.'
     )
   }

@@ -3,7 +3,7 @@ import { Monitor } from 'lucide-react'
 import ScoreRing from '../components/shared/ScoreRing'
 import './ModulePage.css'
 
-const lc = window.lapcharm
+const lc = window.systemlens
 
 interface DisplayData {
   monitors: {
