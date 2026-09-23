@@ -1,5 +1,7 @@
 .about-page {
   max-width: 720px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .about-hero {
@@ -12,12 +14,20 @@
 .about-logo {
   border-radius: 14px;
   flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
 }
 
 .about-hero-text {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+}
+
+.about-hero-text .module-title {
+  word-break: break-word;
 }
 
 .about-version {
@@ -43,12 +53,14 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .about-credit {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .about-heart {
@@ -66,6 +78,7 @@
 .about-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
@@ -77,6 +90,7 @@
   font-family: var(--font-family);
   cursor: pointer;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .about-btn:hover {
@@ -99,4 +113,65 @@
   color: var(--color-text-muted);
   line-height: 1.5;
   padding: 0 var(--spacing-2);
+}
+
+/* Tablet / narrow window */
+@media (max-width: 900px) {
+  .about-page {
+    max-width: 100%;
+  }
+
+  .about-hero {
+    padding: var(--spacing-5) var(--spacing-5);
+    gap: var(--spacing-4);
+  }
+
+  .about-block {
+    padding: var(--spacing-4) var(--spacing-5);
+  }
+}
+
+/* Compact / small window */
+@media (max-width: 720px) {
+  .about-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .about-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .about-hero-text .module-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .about-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .about-btn {
+    width: 100%;
+  }
+
+  .about-credit {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .about-hero {
+    padding: var(--spacing-4);
+  }
+
+  .about-block {
+    padding: var(--spacing-4);
+  }
+
+  .about-tip {
+    padding: 0;
+  }
 }

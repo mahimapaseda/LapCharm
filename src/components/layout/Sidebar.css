@@ -138,3 +138,51 @@
   margin-bottom: 6px;
   line-height: 1.35;
 }
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 72px;
+    padding-top: var(--spacing-4);
+  }
+
+  .sidebar-brand-name,
+  .sidebar-brand-tag,
+  .nav-group-label,
+  .nav-label,
+  .branding-text {
+    display: none;
+  }
+
+  .sidebar-brand {
+    padding: 0 var(--spacing-2) var(--spacing-4);
+    display: flex;
+    justify-content: center;
+  }
+
+  .sidebar-brand::after {
+    content: 'LC';
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-accent-green);
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .nav-active-bar {
+    height: 40%;
+  }
+
+  .sidebar-footer {
+    padding: var(--spacing-3);
+    text-align: center;
+  }
+
+  .version-badge {
+    font-size: 9px;
+  }
+}
+

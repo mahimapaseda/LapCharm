@@ -245,3 +245,31 @@
 .data-table td { color: var(--color-text-secondary); }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: var(--color-bg-elevated); }
+
+@media (max-width: 900px) {
+  .stats-row {
+    flex-direction: column;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .module-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
+  }
+
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+

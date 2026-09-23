@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Battery, Thermometer, HardDrive,
   Cpu, Volume2, Wifi, Monitor, FileText, Info
@@ -32,6 +33,13 @@ interface Props {
 
 export default function Sidebar({ activePage, onNavigate }: Props) {
   const groups = [...new Set(NAV_ITEMS.map((i) => i.group))]
+  const [version, setVersion] = useState('3.5.2')
+
+  useEffect(() => {
+    window.lapcharm?.app?.getVersion?.()
+      ?.then((v: string) => { if (v) setVersion(v) })
+      .catch(() => {})
+  }, [])
 
   return (
     <aside className="sidebar">
@@ -53,6 +61,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
                   id={`nav-${item.id}`}
                   className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
                   onClick={() => onNavigate(item.id)}
+                  title={item.label}
                 >
                   {isActive && <div className="nav-active-bar" />}
                   <Icon size={16} className="nav-icon" />
@@ -66,7 +75,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
       <div className="sidebar-footer">
         <div className="branding-text">Software by Mahima Paseda · Sri Lanka</div>
-        <div className="version-badge">v3.5.1</div>
+        <div className="version-badge">v{version}</div>
       </div>
     </aside>
   )
