@@ -31,7 +31,8 @@ contextBridge.exposeInMainWorld('lapcharm', {
     get: () => ipcRenderer.invoke('audio:get')
   },
   network: {
-    get: () => ipcRenderer.invoke('network:get')
+    get: () => ipcRenderer.invoke('network:get'),
+    speedTest: () => ipcRenderer.invoke('network:speedTest')
   },
   display: {
     get: () => ipcRenderer.invoke('display:get')

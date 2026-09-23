@@ -3,11 +3,17 @@ import { useHealthStore } from '../store/health.store'
 import ScoreRing from '../components/shared/ScoreRing'
 import { Wifi, Cable, ArrowDown, ArrowUp, Gauge, Loader2 } from 'lucide-react'
 import { formatBytes } from '../utils/formatters'
-import { runSpeedTest, type SpeedTestResult } from '../utils/speed-test'
 import './ModulePage.css'
 import './Reports.css'
 
 const lc = window.lapcharm
+
+export interface SpeedTestResult {
+  downloadMbps: number
+  uploadMbps: number
+  latencyMs: number
+  server: string
+}
 
 function SignalBars({ percent }: { percent: number }) {
   const bars = [25, 50, 75, 100]
@@ -51,8 +57,11 @@ export default function Network() {
     setTesting(true)
     setSpeedError(null)
     try {
-      const result = await runSpeedTest()
-      setSpeedResult(result)
+      const res = await lc?.network?.speedTest()
+      if (!res?.success) {
+        throw new Error(res && 'error' in res ? res.error : 'Speed test failed')
+      }
+      setSpeedResult(res.data)
     } catch (err) {
       setSpeedResult(null)
       setSpeedError(err instanceof Error ? err.message : String(err))

@@ -36,6 +36,12 @@ interface LapCharmAPI {
   }
   network: {
     get: () => Promise<LapCharmResult<import('./store/health.store').NetworkState>>
+    speedTest: () => Promise<LapCharmResult<{
+      downloadMbps: number
+      uploadMbps: number
+      latencyMs: number
+      server: string
+    }>>
   }
   display: {
     get: () => Promise<LapCharmResult<unknown>>

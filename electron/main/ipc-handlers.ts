@@ -8,6 +8,7 @@ import { getNetworkInfo } from './collectors/network'
 import { getDisplayInfo } from './collectors/display'
 import { getHistoryData } from './database'
 import { cached, TTL, computeAndPersistHealthScore } from './health-service'
+import { runSpeedTest } from './collectors/speed-test'
 
 export function registerIpcHandlers(ipcMain: IpcMain): void {
 
@@ -59,6 +60,15 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
   ipcMain.handle('network:get', async () => {
     try {
       const data = await cached('network', TTL.network, getNetworkInfo)
+      return { success: true, data }
+    } catch (e) {
+      return { success: false, error: String(e) }
+    }
+  })
+
+  ipcMain.handle('network:speedTest', async () => {
+    try {
+      const data = await runSpeedTest()
       return { success: true, data }
     } catch (e) {
       return { success: false, error: String(e) }
