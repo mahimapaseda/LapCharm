@@ -1,5 +1,29 @@
 import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import autoTableImport from 'jspdf-autotable'
+
+// Vite/Electron ESM interop — ensure we always get the callable plugin
+const autoTable =
+  typeof autoTableImport === 'function'
+    ? autoTableImport
+    : (autoTableImport as { default: typeof autoTableImport }).default
+
+function lastTableY(doc: jsPDF, fallback: number): number {
+  const y = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY
+  return typeof y === 'number' ? y : fallback
+}
+
+function downloadPdfBlob(doc: jsPDF, filename: string): void {
+  const blob = doc.output('blob')
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
+}
 
 export interface DiagnosticHistoryRow {
   id: number
@@ -121,9 +145,15 @@ function buildActions(findings: { area: string; status: Severity; detail: string
 
 /**
  * Generate an IT technical support style diagnostic PDF from LapCharm history snapshots.
+ * Returns true on success; throws on failure so the UI can show an error.
  */
-export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowDays: number): void {
-  if (history.length === 0) return
+export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowDays: number): boolean {
+  if (history.length === 0) {
+    throw new Error('No health snapshots available to export.')
+  }
+  if (typeof autoTable !== 'function') {
+    throw new Error('PDF table plugin failed to load. Reinstall LapCharm or restart the app.')
+  }
 
   const sorted = [...history].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
@@ -138,21 +168,21 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
   const pageW = doc.internal.pageSize.getWidth()
   const margin = 14
 
-  // ── Header bar ─────────────────────────────────────────────
+  // Header bar
   doc.setFillColor(15, 23, 42)
   doc.rect(0, 0, pageW, 28, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(14)
-  doc.text('LapCharm — Laptop Health Diagnostic Report', margin, 12)
+  doc.text('LapCharm - Laptop Health Diagnostic Report', margin, 12)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  doc.text('IT Technical Support · Endpoint diagnostics', margin, 19)
+  doc.text('IT Technical Support / Endpoint diagnostics', margin, 19)
   doc.setFontSize(8)
   doc.text(`Report ID: ${reportId}`, pageW - margin, 12, { align: 'right' })
-  doc.text(`Classification: Internal use`, pageW - margin, 19, { align: 'right' })
+  doc.text('Classification: Internal use', pageW - margin, 19, { align: 'right' })
 
-  // ── Meta block ─────────────────────────────────────────────
+  // Meta block
   let y = 36
   doc.setTextColor(30, 41, 59)
   doc.setFont('helvetica', 'bold')
@@ -173,15 +203,18 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
       ['Generated', generatedAt.toLocaleString()],
       ['Tool', `LapCharm local diagnostics (window: last ${windowDays === 1 ? '24 hours' : `${windowDays} days`})`],
       ['Snapshots analyzed', String(sorted.length)],
-      ['Observation period', `${new Date(oldest.timestamp).toLocaleString()} → ${new Date(latest.timestamp).toLocaleString()}`],
+      [
+        'Observation period',
+        `${new Date(oldest.timestamp).toLocaleString()} to ${new Date(latest.timestamp).toLocaleString()}`
+      ],
       ['Endpoint', 'Local Windows workstation (data collected on-device; not transmitted)'],
       ['Prepared for', 'IT Technical Support / Helpdesk ticket attachment']
     ]
   })
 
-  y = (doc as any).lastAutoTable.finalY + 10
+  y = lastTableY(doc, y) + 10
 
-  // ── Executive summary ──────────────────────────────────────
+  // Executive summary
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.setTextColor(30, 41, 59)
@@ -189,8 +222,8 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
   y += 6
 
   const sevRgb = severityColor(overallSev)
-  doc.setFillColor(...sevRgb)
-  doc.roundedRect(margin, y - 4, 38, 8, 1, 1, 'F')
+  doc.setFillColor(sevRgb[0], sevRgb[1], sevRgb[2])
+  doc.rect(margin, y - 4, 38, 8, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(9)
   doc.setFont('helvetica', 'bold')
@@ -199,14 +232,13 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
   doc.setTextColor(30, 41, 59)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  doc.text(
+  const scoreLine =
     `Latest overall score ${latest.overall_score}/100 (grade ${gradeFromScore(latest.overall_score)}). ` +
-      `Period average ${avg(sorted.map((r) => r.overall_score))}/100 ` +
-      `(range ${minMax(sorted.map((r) => r.overall_score)).min}–${minMax(sorted.map((r) => r.overall_score)).max}).`,
-    margin + 42,
-    y + 1
-  )
-  y += 10
+    `Period average ${avg(sorted.map((r) => r.overall_score))}/100 ` +
+    `(range ${minMax(sorted.map((r) => r.overall_score)).min}-${minMax(sorted.map((r) => r.overall_score)).max}).`
+  const scoreLines = doc.splitTextToSize(scoreLine, pageW - margin * 2 - 42)
+  doc.text(scoreLines, margin + 42, y + 1)
+  y += Math.max(10, scoreLines.length * 4.5 + 4)
 
   const summaryLines = doc.splitTextToSize(
     overallSev === 'Healthy'
@@ -219,7 +251,7 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
   doc.text(summaryLines, margin, y)
   y += summaryLines.length * 4.5 + 6
 
-  // ── Findings ───────────────────────────────────────────────
+  // Findings
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.text('3. Subsystem findings (latest snapshot)', margin, y)
@@ -248,9 +280,9 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
     }
   })
 
-  y = (doc as any).lastAutoTable.finalY + 10
+  y = lastTableY(doc, y) + 10
 
-  // ── Recommended actions ────────────────────────────────────
+  // Recommended actions
   if (y > 250) {
     doc.addPage()
     y = 20
@@ -277,7 +309,7 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
 
   y += 4
 
-  // ── History table ──────────────────────────────────────────
+  // History table
   if (y > 230) {
     doc.addPage()
     y = 20
@@ -295,9 +327,9 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
     row.thermal_score,
     row.disk_score,
     row.cpuram_score,
-    `${row.battery_health_percent?.toFixed(1) ?? '—'}%`,
-    `${row.cpu_temp?.toFixed(1) ?? '—'}°C`,
-    `${row.ram_used_percent?.toFixed(1) ?? '—'}%`
+    `${row.battery_health_percent != null ? row.battery_health_percent.toFixed(1) : '-'}%`,
+    `${row.cpu_temp != null ? row.cpu_temp.toFixed(1) : '-'} C`,
+    `${row.ram_used_percent != null ? row.ram_used_percent.toFixed(1) : '-'}%`
   ])
 
   autoTable(doc, {
@@ -311,7 +343,7 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
     alternateRowStyles: { fillColor: [248, 250, 252] }
   })
 
-  // ── Footer / disclaimer on every page ──────────────────────
+  // Footer on every page
   const pageCount = doc.getNumberOfPages()
   for (let p = 1; p <= pageCount; p++) {
     doc.setPage(p)
@@ -325,8 +357,9 @@ export function generateItDiagnosticPdf(history: DiagnosticHistoryRow[], windowD
       margin,
       290
     )
-    doc.text(`Page ${p} of ${pageCount} · ${reportId}`, pageW - margin, 290, { align: 'right' })
+    doc.text(`Page ${p} of ${pageCount} | ${reportId}`, pageW - margin, 290, { align: 'right' })
   }
 
-  doc.save(`LapCharm-IT-Diagnostic-${reportId}.pdf`)
+  downloadPdfBlob(doc, `LapCharm-IT-Diagnostic-${reportId}.pdf`)
+  return true
 }

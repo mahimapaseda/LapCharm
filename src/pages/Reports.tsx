@@ -51,7 +51,13 @@ export default function Reports() {
   }
 
   const exportPdf = () => {
-    generateItDiagnosticPdf(history, days)
+    try {
+      generateItDiagnosticPdf(history, days)
+    } catch (err) {
+      console.error('PDF export failed:', err)
+      const message = err instanceof Error ? err.message : String(err)
+      window.alert(`Could not create PDF report.\n\n${message}`)
+    }
   }
 
   return (
